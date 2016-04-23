@@ -4,11 +4,11 @@ import be.bendem.sqlstreams.TransactedSql;
 
 import java.sql.Connection;
 
-public class TransactedSqlImpl extends SqlImpl implements TransactedSql {
+class TransactedSqlImpl extends SqlImpl implements TransactedSql {
 
     private final Connection connection;
 
-    public TransactedSqlImpl(Connection connection) {
+    TransactedSqlImpl(Connection connection) {
         super(null);
         this.connection = connection;
         Wrap.execute(() -> connection.setAutoCommit(false));
