@@ -9,6 +9,9 @@ import java.sql.PreparedStatement;
 
 import javax.sql.DataSource;
 
+/**
+ *
+ */
 public interface Sql extends AutoCloseable {
 
     static Sql connect(Connection connection) {

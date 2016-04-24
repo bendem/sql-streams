@@ -4,6 +4,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.stream.Stream;
 
+/**
+ * Represents an object providing methods to transform a {@link ResultSet} into a {@link Stream}
+ * of objects.
+ *
+ * @param <Statement> the type of the statement
+ */
 public interface Query<Statement extends PreparedStatement> extends ParameterProvider<Query<Statement>, Statement> {
 
     <R> Stream<R> mapTo(Class<R> clazz);

@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.Objects;
 
 @SuppressWarnings("unchecked")
 class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Statement>, Statement extends PreparedStatement>
@@ -33,7 +34,7 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
 
     @Override
     public Provider setMagic(int index, Object x) {
-        SqlBindings.map(statement, index, x);
+        SqlBindings.map(statement, index, Objects.requireNonNull(x));
         return (Provider) this;
     }
 

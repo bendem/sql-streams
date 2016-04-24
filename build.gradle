@@ -13,3 +13,10 @@ dependencies {
     testCompile 'junit:junit:4.11'
     testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
 }
+
+javadoc {
+    exclude '**/impl/*.java'
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.links 'https://docs.oracle.com/javase/8/docs/api/'
+}
