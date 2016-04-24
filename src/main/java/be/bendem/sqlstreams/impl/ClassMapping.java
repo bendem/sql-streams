@@ -17,11 +17,9 @@ public class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
     }
 
-    private final Class<T> clazz;
     private final Constructor<T> constructor;
 
     private ClassMapping(Class<T> clazz) {
-        this.clazz = clazz;
         this.constructor = (Constructor<T>) clazz.getConstructors()[0];
     }
 

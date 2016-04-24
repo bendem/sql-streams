@@ -38,36 +38,36 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public TransactedSql transaction() {
-        return new TransactedSqlImpl(getConnection());
+    public Transaction transaction() {
+        return new TransactionImpl(getConnection());
     }
 
     @Override
-    public QueryParameterProvider<PreparedStatement> query(String sql, Object... parameters) {
+    public Query<PreparedStatement> query(String sql, Object... parameters) {
         Connection connection = getConnection();
 
         return bind(
-            new QueryParameterProviderImpl<>(
+            new QueryImpl<>(
                 connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
             parameters);
     }
 
     @Override
-    public ExecuteParameterProvider<PreparedStatement> execute(String sql, Object... parameters) {
+    public Execute<PreparedStatement> execute(String sql, Object... parameters) {
         Connection connection = getConnection();
 
         return bind(
-            new ExecuteParameterProviderImpl<>(
+            new ExecuteImpl<>(
                 connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
             parameters);
     }
 
     @Override
-    public UpdateParameterProvider<PreparedStatement> update(String sql, Object... parameters) {
+    public Update<PreparedStatement> update(String sql, Object... parameters) {
         Connection connection = getConnection();
 
         return bind(
-            new UpdateParameterProviderImpl<>(
+            new UpdateImpl<>(
                 connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
             parameters);
     }

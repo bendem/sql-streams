@@ -1,14 +1,14 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.TransactedSql;
+import be.bendem.sqlstreams.Transaction;
 
 import java.sql.Connection;
 
-class TransactedSqlImpl extends SqlImpl implements TransactedSql {
+class TransactionImpl extends SqlImpl implements Transaction {
 
     private final Connection connection;
 
-    TransactedSqlImpl(Connection connection) {
+    TransactionImpl(Connection connection) {
         super(null);
         this.connection = connection;
         Wrap.execute(() -> connection.setAutoCommit(false));
@@ -25,13 +25,13 @@ class TransactedSqlImpl extends SqlImpl implements TransactedSql {
     }
 
     @Override
-    public TransactedSql commit() {
+    public Transaction commit() {
         Wrap.execute(connection::commit);
         return this;
     }
 
     @Override
-    public TransactedSql rollback() {
+    public Transaction rollback() {
         Wrap.execute(connection::rollback);
         return this;
     }

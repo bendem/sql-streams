@@ -48,7 +48,7 @@ public class QueryTests {
 
     @Test
     public void testSingleConnectionDataSource() {
-        UpdateParameterProvider<PreparedStatement> update = sql.update(INSERT, 1);
+        Update<PreparedStatement> update = sql.update(INSERT, 1);
 
         try {
             sql.update("");
@@ -65,7 +65,7 @@ public class QueryTests {
 
     @Test
     public void testRollback() {
-        try(TransactedSql transaction = sql.transaction()) {
+        try(Transaction transaction = sql.transaction()) {
             Assert.assertEquals(1, transaction.update(INSERT, 1).count());
             transaction.rollback();
             Assert.assertEquals(0, transaction.query("select * from test").map(rs -> 0).count());

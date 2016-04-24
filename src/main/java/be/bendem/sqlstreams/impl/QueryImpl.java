@@ -1,6 +1,6 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.QueryParameterProvider;
+import be.bendem.sqlstreams.Query;
 import be.bendem.sqlstreams.SqlFunction;
 
 import java.sql.Connection;
@@ -8,13 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.stream.Stream;
 
-public class QueryParameterProviderImpl<Statement extends PreparedStatement>
-        extends ParameterProviderImpl<QueryParameterProvider<Statement>, Statement> implements QueryParameterProvider<Statement> {
+class QueryImpl<Statement extends PreparedStatement>
+        extends ParameterProviderImpl<Query<Statement>, Statement> implements Query<Statement> {
 
     private final Connection connection;
     private final boolean closeConnection;
 
-    public QueryParameterProviderImpl(Connection connection, Statement statement, boolean closeConnection) {
+    QueryImpl(Connection connection, Statement statement, boolean closeConnection) {
         super(statement);
         this.connection = connection;
         this.closeConnection = closeConnection;

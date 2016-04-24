@@ -1,17 +1,17 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.ExecuteParameterProvider;
+import be.bendem.sqlstreams.Execute;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-class ExecuteParameterProviderImpl<Statement extends PreparedStatement>
-        extends ParameterProviderImpl<ExecuteParameterProvider<Statement>, Statement> implements ExecuteParameterProvider<Statement> {
+class ExecuteImpl<Statement extends PreparedStatement>
+        extends ParameterProviderImpl<Execute<Statement>, Statement> implements Execute<Statement> {
 
     private final Connection connection;
     private final boolean closeConnection;
 
-    ExecuteParameterProviderImpl(Connection connection, Statement statement, boolean closeConnection) {
+    ExecuteImpl(Connection connection, Statement statement, boolean closeConnection) {
         super(statement);
         this.connection = connection;
         this.closeConnection = closeConnection;

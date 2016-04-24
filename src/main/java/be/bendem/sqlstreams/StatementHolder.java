@@ -5,6 +5,5 @@ import java.sql.PreparedStatement;
 public interface StatementHolder<Statement extends PreparedStatement> {
 
     Statement getStatement();
-    // TODO commit/rollback?
 
 }
