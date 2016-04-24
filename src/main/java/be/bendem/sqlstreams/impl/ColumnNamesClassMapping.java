@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 class ColumnNamesClassMapping<T> implements SqlFunction<ResultSet, T> {
 
     private static final Map<Class<?>, ColumnNamesClassMapping<?>> MAPPINGS = new ConcurrentHashMap<>();
+
     @SuppressWarnings("unchecked")
     public static <T> ColumnNamesClassMapping<T> get(Class<T> clazz, String[] columnNames) {
         return (ColumnNamesClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ColumnNamesClassMapping<>(clazz, columnNames));
@@ -34,13 +35,13 @@ class ColumnNamesClassMapping<T> implements SqlFunction<ResultSet, T> {
         Parameter[] parameters = constructor.getParameters();
         Object[] values = new Object[parameters.length];
 
-        for(int i = 0; i < parameters.length; i++) {
+        for (int i = 0; i < parameters.length; i++) {
             values[i] = SqlBindings.map(resultSet, columnNames[i], parameters[i].getType());
         }
 
         try {
             return constructor.newInstance(values);
-        } catch(InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

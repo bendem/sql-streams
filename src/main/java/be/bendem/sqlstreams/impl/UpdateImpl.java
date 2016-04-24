@@ -38,7 +38,7 @@ class UpdateImpl<Statement extends PreparedStatement>
 
     private void close() throws SQLException {
         statement.close();
-        if(closeConnection) {
+        if (closeConnection) {
             connection.close();
         }
     }

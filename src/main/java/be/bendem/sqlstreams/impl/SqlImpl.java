@@ -31,7 +31,7 @@ public class SqlImpl implements Sql {
 
     private <Provider extends ParameterProvider<Provider, Statement>, Statement extends PreparedStatement> Provider bind(
             Provider parameterProvider, Object[] parameters) {
-        for(int i = 0; i < parameters.length; i++) {
+        for (int i = 0; i < parameters.length; i++) {
             parameterProvider.setMagic(i + 1, parameters[i]);
         }
         return parameterProvider;
@@ -78,11 +78,11 @@ public class SqlImpl implements Sql {
                 @Override
                 public boolean tryAdvance(Consumer<? super T> consumer) {
                     try {
-                        if(resultSet.next()) {
+                        if (resultSet.next()) {
                             consumer.accept(mapping.apply(resultSet));
                             return true;
                         }
-                    } catch(SQLException e) {
+                    } catch (SQLException e) {
                         throw new UncheckedSqlException(e);
                     }
                     return false;
@@ -110,7 +110,7 @@ public class SqlImpl implements Sql {
 
     @Override
     public void close() throws Exception {
-        if(dataSource instanceof AutoCloseable) {
+        if (dataSource instanceof AutoCloseable) {
             ((AutoCloseable) dataSource).close();
         }
     }

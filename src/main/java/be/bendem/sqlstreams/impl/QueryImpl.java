@@ -40,7 +40,7 @@ class QueryImpl<Statement extends PreparedStatement>
         return SqlImpl.streamFromResultSet(mapping, Wrap.get(statement::executeQuery))
             .onClose(() -> Wrap.execute(() -> {
                 statement.close();
-                if(closeConnection) {
+                if (closeConnection) {
                     connection.close();
                 }
             }));

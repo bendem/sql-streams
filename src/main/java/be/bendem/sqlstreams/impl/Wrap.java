@@ -17,7 +17,7 @@ final class Wrap {
     static void execute(SqlAction action) throws UncheckedSqlException {
         try {
             action.execute();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
     }
@@ -25,7 +25,7 @@ final class Wrap {
     static <T> T get(SqlSupplier<T> supplier) throws UncheckedSqlException {
         try {
             return supplier.get();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
     }

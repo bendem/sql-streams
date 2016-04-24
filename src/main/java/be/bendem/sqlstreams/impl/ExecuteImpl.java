@@ -22,7 +22,7 @@ class ExecuteImpl<Statement extends PreparedStatement>
         return Wrap.get(() -> {
             boolean value = statement.execute();
             statement.close();
-            if(closeConnection) {
+            if (closeConnection) {
                 connection.close();
             }
             return value;

@@ -22,18 +22,18 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
             new Class[] { Connection.class },
             (proxy, method, args) -> {
                 try {
-                    if(method.getName().equals("close") && method.getParameterCount() == 0) {
-                        if(!connection.getAutoCommit()) {
+                    if (method.getName().equals("close") && method.getParameterCount() == 0) {
+                        if (!connection.getAutoCommit()) {
                             connection.rollback();
                         }
                         releaseConnection();
                         return null;
                     }
                     return method.invoke(connection, args);
-                } catch(InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     Throwable cause = e.getCause();
                     Exception exception;
-                    if(cause instanceof SQLException) {
+                    if (cause instanceof SQLException) {
                         exception = new UncheckedSqlException((SQLException) cause);
                     } else {
                         exception = new RuntimeException(cause);
@@ -46,7 +46,7 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
 
     @Override
     public Connection getConnection() throws SQLException {
-        if(inUse.getAndSet(true)) {
+        if (inUse.getAndSet(true)) {
             throw new IllegalStateException("Connection already in use");
         }
 

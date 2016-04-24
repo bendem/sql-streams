@@ -29,7 +29,7 @@ final class SqlBindings {
     static <T> void map(PreparedStatement stmt, int index, T value) {
         @SuppressWarnings("unchecked")
         ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) INSTANCE.toSqlWithIndex.get(value.getClass());
-        if(toSqlBinding == null) {
+        if (toSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + value.getClass());
         }
         Wrap.execute(() -> toSqlBinding.bind(stmt, index, value));
@@ -38,7 +38,7 @@ final class SqlBindings {
     static <T> T map(ResultSet resultSet, int index, Class<T> clazz) {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) INSTANCE.fromSqlWithIndex.get(clazz);
-        if(fromSqlBinding == null) {
+        if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
         return Wrap.get(() -> {
@@ -50,7 +50,7 @@ final class SqlBindings {
     static <T> T map(ResultSet resultSet, String name, Class<T> clazz) {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) INSTANCE.fromSqlWithName.get(clazz);
-        if(fromSqlBinding == null) {
+        if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
         return Wrap.get(() -> {
