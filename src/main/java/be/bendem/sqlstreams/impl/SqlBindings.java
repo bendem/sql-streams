@@ -4,24 +4,31 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 final class SqlBindings {
 
-    private interface ToSqlBinding<T> {
+    private interface ToSqlBindingWithIndex<T> {
         void bind(PreparedStatement statement, int index, T value) throws SQLException;
     }
 
-    private interface FromSqlBinding<T> {
+    private interface FromSqlBindingWithIndex<T> {
         T retrieve(ResultSet resultSet, int index) throws SQLException;
+    }
+
+    private interface FromSqlBindingWithName<T> {
+        T retrieve(ResultSet resultSet, String name) throws SQLException;
     }
 
     private static final SqlBindings INSTANCE = new SqlBindings();
 
     static <T> void map(PreparedStatement stmt, int index, T value) {
-        ToSqlBinding<T> toSqlBinding = (ToSqlBinding<T>) INSTANCE.toSql.get(value.getClass());
+        @SuppressWarnings("unchecked")
+        ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) INSTANCE.toSqlWithIndex.get(value.getClass());
         if(toSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + value.getClass());
         }
@@ -29,35 +36,69 @@ final class SqlBindings {
     }
 
     static <T> T map(ResultSet resultSet, int index, Class<T> clazz) {
-        FromSqlBinding<T> fromSqlBinding = (FromSqlBinding<T>) INSTANCE.fromSql.get(clazz);
+        @SuppressWarnings("unchecked")
+        FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) INSTANCE.fromSqlWithIndex.get(clazz);
         if(fromSqlBinding == null) {
-            throw new IllegalArgumentException("No binding for " + clazz.getClass());
+            throw new IllegalArgumentException("No binding for " + clazz);
         }
-        return Wrap.get(() -> fromSqlBinding.retrieve(resultSet, index));
+        return Wrap.get(() -> {
+            T retrieved = fromSqlBinding.retrieve(resultSet, index);
+            return resultSet.wasNull() ? null : retrieved;
+        });
     }
 
-    private final Map<Class<?>, FromSqlBinding<?>> fromSql;
-    private final Map<Class<?>, ToSqlBinding<?>> toSql;
+    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) {
+        @SuppressWarnings("unchecked")
+        FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) INSTANCE.fromSqlWithName.get(clazz);
+        if(fromSqlBinding == null) {
+            throw new IllegalArgumentException("No binding for " + clazz);
+        }
+        return Wrap.get(() -> {
+            T retrieved = fromSqlBinding.retrieve(resultSet, name);
+            return resultSet.wasNull() ? null : retrieved;
+        });
+    }
+
+    private final Map<Class<?>, FromSqlBindingWithIndex<?>> fromSqlWithIndex;
+    private final Map<Class<?>, ToSqlBindingWithIndex<?>> toSqlWithIndex;
+    private final Map<Class<?>, FromSqlBindingWithName<?>> fromSqlWithName;
 
     private SqlBindings() {
-        Map<Class<?>, FromSqlBinding<?>> from = new HashMap<>();
-        Map<Class<?>, ToSqlBinding<?>> to = new HashMap<>();
+        Map<Class<?>, FromSqlBindingWithIndex<?>> fromWithIndex = new HashMap<>();
+        Map<Class<?>, ToSqlBindingWithIndex<?>> toWithIndex = new HashMap<>();
+        Map<Class<?>, FromSqlBindingWithName<?>> fromWithName = new HashMap<>();
 
-        addMapping(from, to, String.class, ResultSet::getString, PreparedStatement::setString);
-        addMapping(from, to, Date.class, ResultSet::getDate, PreparedStatement::setDate);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Date.class, ResultSet::getDate, ResultSet::getDate, PreparedStatement::setDate);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Time.class, ResultSet::getTime, ResultSet::getTime, PreparedStatement::setTime);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Timestamp.class, ResultSet::getTimestamp, ResultSet::getTimestamp, PreparedStatement::setTimestamp);
 
-        addMapping(from, to, Long.class, ResultSet::getLong, PreparedStatement::setLong);
-        addMapping(from, to, Integer.class, ResultSet::getInt, PreparedStatement::setInt);
-        addMapping(from, to, Short.class, ResultSet::getShort, PreparedStatement::setShort);
-        addMapping(from, to, Byte.class, ResultSet::getByte, PreparedStatement::setByte);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, String.class, ResultSet::getString, ResultSet::getString, PreparedStatement::setString);
 
-        fromSql = Collections.unmodifiableMap(from);
-        toSql = Collections.unmodifiableMap(to);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Long.class, ResultSet::getLong, ResultSet::getLong, PreparedStatement::setLong);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, long.class, ResultSet::getLong, ResultSet::getLong, PreparedStatement::setLong);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Integer.class, ResultSet::getInt, ResultSet::getInt, PreparedStatement::setInt);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, int.class, ResultSet::getInt, ResultSet::getInt, PreparedStatement::setInt);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Short.class, ResultSet::getShort, ResultSet::getShort, PreparedStatement::setShort);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, short.class, ResultSet::getShort, ResultSet::getShort, PreparedStatement::setShort);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Byte.class, ResultSet::getByte, ResultSet::getByte, PreparedStatement::setByte);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, byte.class, ResultSet::getByte, ResultSet::getByte, PreparedStatement::setByte);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, Boolean.class, ResultSet::getBoolean, ResultSet::getBoolean, PreparedStatement::setBoolean);
+        addMapping(fromWithIndex, fromWithName, toWithIndex, boolean.class, ResultSet::getBoolean, ResultSet::getBoolean, PreparedStatement::setBoolean);
+
+        fromSqlWithIndex = Collections.unmodifiableMap(fromWithIndex);
+        toSqlWithIndex = Collections.unmodifiableMap(toWithIndex);
+        fromSqlWithName = Collections.unmodifiableMap(fromWithName);
     }
 
-    private static <T> void addMapping(Map<Class<?>, FromSqlBinding<?>> fromMap, Map<Class<?>, ToSqlBinding<?>> toMap,
-                                       Class<T> clazz, FromSqlBinding<T> from, ToSqlBinding<T> to) {
-        fromMap.put(clazz, from);
-        toMap.put(clazz, to);
+    private static <T> void addMapping(Map<Class<?>, FromSqlBindingWithIndex<?>> fromWithIndex,
+                                       Map<Class<?>, FromSqlBindingWithName<?>> fromWithName,
+                                       Map<Class<?>, ToSqlBindingWithIndex<?>> toWithIndex,
+                                       Class<T> clazz,
+                                       FromSqlBindingWithIndex<T> fromBindingWithIndex,
+                                       FromSqlBindingWithName<T> fromBindingWithName,
+                                       ToSqlBindingWithIndex<T> toBindingWithIndex) {
+        fromWithIndex.put(clazz, fromBindingWithIndex);
+        fromWithName.put(clazz, fromBindingWithName);
+        toWithIndex.put(clazz, toBindingWithIndex);
     }
 }

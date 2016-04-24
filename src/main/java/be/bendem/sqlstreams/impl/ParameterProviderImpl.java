@@ -10,6 +10,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 
+@SuppressWarnings("unchecked")
 class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Statement>, Statement extends PreparedStatement>
         implements ParameterProvider<Provider, Statement> {
 

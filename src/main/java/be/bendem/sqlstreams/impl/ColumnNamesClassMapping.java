@@ -10,19 +10,21 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class ClassMapping<T> implements SqlFunction<ResultSet, T> {
+class ColumnNamesClassMapping<T> implements SqlFunction<ResultSet, T> {
 
-    private static final Map<Class<?>, ClassMapping<?>> MAPPINGS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ColumnNamesClassMapping<?>> MAPPINGS = new ConcurrentHashMap<>();
     @SuppressWarnings("unchecked")
-    public static <T> ClassMapping<T> get(Class<T> clazz) {
-        return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
+    public static <T> ColumnNamesClassMapping<T> get(Class<T> clazz, String[] columnNames) {
+        return (ColumnNamesClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ColumnNamesClassMapping<>(clazz, columnNames));
     }
 
     private final Constructor<T> constructor;
+    private final String[] columnNames;
 
     @SuppressWarnings("unchecked")
-    private ClassMapping(Class<T> clazz) {
+    private ColumnNamesClassMapping(Class<T> clazz, String[] columnNames) {
         this.constructor = (Constructor<T>) clazz.getConstructors()[0];
+        this.columnNames = columnNames;
 
         constructor.setAccessible(true);
     }
@@ -33,7 +35,7 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         Object[] values = new Object[parameters.length];
 
         for(int i = 0; i < parameters.length; i++) {
-            values[i] = SqlBindings.map(resultSet, i + 1, parameters[i].getType());
+            values[i] = SqlBindings.map(resultSet, columnNames[i], parameters[i].getType());
         }
 
         try {
@@ -42,4 +44,5 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
             throw new RuntimeException(e);
         }
     }
+
 }

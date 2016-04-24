@@ -21,8 +21,18 @@ class QueryImpl<Statement extends PreparedStatement>
     }
 
     @Override
-    public <R> Stream<R> mapToClass(Class<R> clazz) {
+    public <R> Stream<R> mapTo(Class<R> clazz) {
         return map(ClassMapping.get(clazz));
+    }
+
+    @Override
+    public <R> Stream<R> mapTo(Class<R> clazz, String... names) {
+        return map(ColumnNamesClassMapping.get(clazz, names));
+    }
+
+    @Override
+    public <R> Stream<R> mapTo(Class<R> clazz, int... columns) {
+        return map(ColumnClassMapping.get(clazz, columns));
     }
 
     @Override

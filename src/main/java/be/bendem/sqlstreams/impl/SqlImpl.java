@@ -82,8 +82,6 @@ public class SqlImpl implements Sql {
                             consumer.accept(mapping.apply(resultSet));
                             return true;
                         }
-                        resultSet.getStatement().close();
-                        resultSet.close();
                     } catch(SQLException e) {
                         throw new UncheckedSqlException(e);
                     }
