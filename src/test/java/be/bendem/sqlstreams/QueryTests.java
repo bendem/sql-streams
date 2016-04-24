@@ -63,20 +63,4 @@ public class QueryTests {
         }
     }
 
-    @Test
-    public void testRollback() {
-        try(Transaction transaction = sql.transaction()) {
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
-            transaction.rollback();
-            Assert.assertEquals(0, transaction.query("select * from test").map(rs -> 0).count());
-
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
-            transaction.commit();
-            Assert.assertEquals(1, transaction.query("select * from test").map(rs -> 0).count());
-
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
-        } // rollback
-        Assert.assertEquals(1, sql.query("select * from test").map(rs -> 0).count());
-    }
-
 }

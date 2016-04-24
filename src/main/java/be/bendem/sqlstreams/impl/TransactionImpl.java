@@ -38,6 +38,9 @@ class TransactionImpl extends SqlImpl implements Transaction {
 
     @Override
     public void close() {
-        Wrap.execute(connection::close);
+        Wrap.execute(() -> {
+            connection.rollback();
+            connection.close();
+        });
     }
 }
