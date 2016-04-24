@@ -1,5 +1,6 @@
 package be.bendem.sqlstreams.impl;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,6 +44,8 @@ final class SqlBindings {
         Map<Class<?>, ToSqlBinding<?>> to = new HashMap<>();
 
         addMapping(from, to, String.class, ResultSet::getString, PreparedStatement::setString);
+        addMapping(from, to, Date.class, ResultSet::getDate, PreparedStatement::setDate);
+
         addMapping(from, to, Long.class, ResultSet::getLong, PreparedStatement::setLong);
         addMapping(from, to, Integer.class, ResultSet::getInt, PreparedStatement::setInt);
         addMapping(from, to, Short.class, ResultSet::getShort, PreparedStatement::setShort);
