@@ -27,6 +27,12 @@ public interface Sql extends AutoCloseable {
     }
 
     // TODO Add all methods overloads for prepareCall
+
+    /**
+     * Opens a new transaction.
+     *
+     * @return the new transaction
+     */
     Transaction transaction();
 
     Query<PreparedStatement> query(String sql, Object... parameters);
