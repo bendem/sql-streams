@@ -11,3 +11,14 @@ try (Stream<User> users = sql.query("select * from users where added < current_d
     // Use your users stream \o/
 }
 ```
+
+What if a transaction could be written like this:
+
+```java
+try (Transaction transaction = sql.transaction()) {
+    // Use your transaction
+    transaction.commit();
+} catch (SomeException e) {
+    // Handle exception
+} // rollback
+```
