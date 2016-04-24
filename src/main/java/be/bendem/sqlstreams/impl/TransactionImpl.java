@@ -15,7 +15,7 @@ class TransactionImpl extends SqlImpl implements Transaction {
     }
 
     @Override
-    protected Connection getConnection() {
+    public Connection getConnection() {
         return connection;
     }
 
