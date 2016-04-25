@@ -19,23 +19,41 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
     }
 
+    @SuppressWarnings("unchecked")
+    protected static <T> Constructor<T> findConstructor(Class<T> clazz, int parameters) {
+        for (Constructor<?> constructor : clazz.getConstructors()) {
+            if (constructor.getParameterCount() == parameters) {
+                return (Constructor<T>) constructor;
+            }
+        }
+        throw new IllegalArgumentException("No constructor for " + clazz + " with " + parameters + " parameters");
+    }
+
     private final Constructor<T> constructor;
 
     @SuppressWarnings("unchecked")
     private ClassMapping(Class<T> clazz) {
-        this.constructor = (Constructor<T>) clazz.getConstructors()[0];
+        this((Constructor<T>) clazz.getConstructors()[0]);
+    }
+
+    protected ClassMapping(Constructor<T> constructor) {
+        this.constructor = constructor;
 
         constructor.setAccessible(true);
     }
 
-    @Override
-    public T apply(ResultSet resultSet) throws SQLException {
-        Parameter[] parameters = constructor.getParameters();
+    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) {
         Object[] values = new Object[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {
             values[i] = SqlBindings.map(resultSet, i + 1, parameters[i].getType());
         }
+        return values;
+    }
+
+    @Override
+    public T apply(ResultSet resultSet) throws SQLException {
+        Object[] values = getValues(constructor.getParameters(), resultSet);
 
         try {
             return constructor.newInstance(values);
