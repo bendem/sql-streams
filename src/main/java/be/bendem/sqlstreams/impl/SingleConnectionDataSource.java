@@ -28,6 +28,8 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
                         }
                         releaseConnection();
                         return null;
+                    } else if (method.getName().equals("isClosed") && method.getParameterCount() == 0) {
+                        return !inUse.get();
                     }
                     return method.invoke(connection, args);
                 } catch (InvocationTargetException e) {
