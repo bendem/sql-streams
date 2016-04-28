@@ -2,18 +2,20 @@ package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.SqlFunction;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 class ClassMapping<T> implements SqlFunction<ResultSet, T> {
 
-    private static final Map<Class<?>, ClassMapping<?>> MAPPINGS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ClassMapping<?>> MAPPINGS = Collections.synchronizedMap(new WeakHashMap<>());
 
     @SuppressWarnings("unchecked")
     public static <T> ClassMapping<T> get(Class<T> clazz) {
@@ -44,14 +46,14 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return Arrays.stream(parameterTypes).allMatch(SqlBindings::supported);
     }
 
-    private final Constructor<T> constructor;
+    private final WeakReference<Constructor<T>> constructor;
 
     private ClassMapping(Class<T> clazz) {
         this(findConstructor(clazz));
     }
 
     ClassMapping(Constructor<T> constructor) {
-        this.constructor = constructor;
+        this.constructor = new WeakReference<>(constructor);
 
         constructor.setAccessible(true);
     }
@@ -67,6 +69,10 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
 
     @Override
     public T apply(ResultSet resultSet) throws SQLException {
+        Constructor<T> constructor = this.constructor.get();
+        if (constructor == null) {
+            throw new IllegalStateException("constructor got gc'd, how did that happen?");
+        }
         Object[] values = getValues(constructor.getParameters(), resultSet);
 
         try {
