@@ -59,6 +59,10 @@ final class SqlBindings {
         });
     }
 
+    static <T> boolean supported(Class<T> clazz) {
+        return INSTANCE.toSqlWithIndex.containsKey(clazz);
+    }
+
     private final Map<Class<?>, FromSqlBindingWithIndex<?>> fromSqlWithIndex;
     private final Map<Class<?>, ToSqlBindingWithIndex<?>> toSqlWithIndex;
     private final Map<Class<?>, FromSqlBindingWithName<?>> fromSqlWithName;
