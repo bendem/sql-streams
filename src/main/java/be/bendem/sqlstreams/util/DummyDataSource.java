@@ -1,4 +1,4 @@
-package be.bendem.sqlstreams.impl;
+package be.bendem.sqlstreams.util;
 
 import java.io.PrintWriter;
 import java.sql.Connection;

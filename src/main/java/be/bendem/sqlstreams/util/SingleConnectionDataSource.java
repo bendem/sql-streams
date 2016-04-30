@@ -1,7 +1,6 @@
-package be.bendem.sqlstreams.impl;
+package be.bendem.sqlstreams.util;
 
 import be.bendem.sqlstreams.UncheckedSqlException;
-import be.bendem.sqlstreams.util.Wrap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;

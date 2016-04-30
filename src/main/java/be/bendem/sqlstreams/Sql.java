@@ -1,8 +1,8 @@
 package be.bendem.sqlstreams;
 
-import be.bendem.sqlstreams.impl.SingleConnectionDataSource;
+import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.impl.SqlImpl;
-import be.bendem.sqlstreams.impl.SuppliedConnectionsDataSource;
+import be.bendem.sqlstreams.util.SuppliedConnectionsDataSource;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.SqlSupplier;
 import be.bendem.sqlstreams.util.Tuple2;
