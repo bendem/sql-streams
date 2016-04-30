@@ -12,6 +12,8 @@ import java.util.Map;
 
 final class SqlBindings {
 
+    private SqlBindings() {}
+
     private interface ToSqlBindingWithIndex<T> {
         void bind(PreparedStatement statement, int index, T value) throws SQLException;
     }
@@ -24,53 +26,11 @@ final class SqlBindings {
         T retrieve(ResultSet resultSet, String name) throws SQLException;
     }
 
-    private static final SqlBindings INSTANCE = new SqlBindings();
+    private static final Map<Class<?>, FromSqlBindingWithIndex<?>> FROM_SQL_WITH_INDEX;
+    private static final Map<Class<?>, ToSqlBindingWithIndex<?>> TO_SQL_WITH_INDEX;
+    private static final Map<Class<?>, FromSqlBindingWithName<?>> FROM_SQL_WITH_NAME;
 
-    static <Statement extends PreparedStatement> Statement map(Statement stmt, Object[] params, int offset) throws SQLException {
-        for (int i = 0; i < params.length; ++i) {
-            map(stmt, i + offset + 1, params[i]);
-        }
-        return stmt;
-    }
-
-    static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
-        @SuppressWarnings("unchecked")
-        ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) INSTANCE.toSqlWithIndex.get(value.getClass());
-        if (toSqlBinding == null) {
-            throw new IllegalArgumentException("No binding for " + value.getClass());
-        }
-        toSqlBinding.bind(stmt, index, value);
-    }
-
-    static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
-        @SuppressWarnings("unchecked")
-        FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) INSTANCE.fromSqlWithIndex.get(clazz);
-        if (fromSqlBinding == null) {
-            throw new IllegalArgumentException("No binding for " + clazz);
-        }
-        T retrieved = fromSqlBinding.retrieve(resultSet, index);
-        return resultSet.wasNull() ? null : retrieved;
-    }
-
-    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
-        @SuppressWarnings("unchecked")
-        FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) INSTANCE.fromSqlWithName.get(clazz);
-        if (fromSqlBinding == null) {
-            throw new IllegalArgumentException("No binding for " + clazz);
-        }
-        T retrieved = fromSqlBinding.retrieve(resultSet, name);
-        return resultSet.wasNull() ? null : retrieved;
-    }
-
-    static <T> boolean supported(Class<T> clazz) {
-        return INSTANCE.toSqlWithIndex.containsKey(clazz);
-    }
-
-    private final Map<Class<?>, FromSqlBindingWithIndex<?>> fromSqlWithIndex;
-    private final Map<Class<?>, ToSqlBindingWithIndex<?>> toSqlWithIndex;
-    private final Map<Class<?>, FromSqlBindingWithName<?>> fromSqlWithName;
-
-    private SqlBindings() {
+    static {
         Map<Class<?>, FromSqlBindingWithIndex<?>> fromWithIndex = new HashMap<>();
         Map<Class<?>, ToSqlBindingWithIndex<?>> toWithIndex = new HashMap<>();
         Map<Class<?>, FromSqlBindingWithName<?>> fromWithName = new HashMap<>();
@@ -92,9 +52,9 @@ final class SqlBindings {
         addMapping(fromWithIndex, fromWithName, toWithIndex, Boolean.class, ResultSet::getBoolean, ResultSet::getBoolean, PreparedStatement::setBoolean);
         addMapping(fromWithIndex, fromWithName, toWithIndex, boolean.class, ResultSet::getBoolean, ResultSet::getBoolean, PreparedStatement::setBoolean);
 
-        fromSqlWithIndex = Collections.unmodifiableMap(fromWithIndex);
-        toSqlWithIndex = Collections.unmodifiableMap(toWithIndex);
-        fromSqlWithName = Collections.unmodifiableMap(fromWithName);
+        FROM_SQL_WITH_INDEX = Collections.unmodifiableMap(fromWithIndex);
+        TO_SQL_WITH_INDEX = Collections.unmodifiableMap(toWithIndex);
+        FROM_SQL_WITH_NAME = Collections.unmodifiableMap(fromWithName);
     }
 
     private static <T> void addMapping(Map<Class<?>, FromSqlBindingWithIndex<?>> fromWithIndex,
@@ -108,4 +68,45 @@ final class SqlBindings {
         fromWithName.put(clazz, fromBindingWithName);
         toWithIndex.put(clazz, toBindingWithIndex);
     }
+
+    static <Statement extends PreparedStatement> Statement map(Statement stmt, Object[] params, int offset) throws SQLException {
+        for (int i = 0; i < params.length; ++i) {
+            map(stmt, i + offset + 1, params[i]);
+        }
+        return stmt;
+    }
+
+    static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
+        @SuppressWarnings("unchecked")
+        ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) TO_SQL_WITH_INDEX.get(value.getClass());
+        if (toSqlBinding == null) {
+            throw new IllegalArgumentException("No binding for " + value.getClass());
+        }
+        toSqlBinding.bind(stmt, index, value);
+    }
+
+    static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
+        @SuppressWarnings("unchecked")
+        FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) FROM_SQL_WITH_INDEX.get(clazz);
+        if (fromSqlBinding == null) {
+            throw new IllegalArgumentException("No binding for " + clazz);
+        }
+        T retrieved = fromSqlBinding.retrieve(resultSet, index);
+        return resultSet.wasNull() ? null : retrieved;
+    }
+
+    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
+        @SuppressWarnings("unchecked")
+        FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) FROM_SQL_WITH_NAME.get(clazz);
+        if (fromSqlBinding == null) {
+            throw new IllegalArgumentException("No binding for " + clazz);
+        }
+        T retrieved = fromSqlBinding.retrieve(resultSet, name);
+        return resultSet.wasNull() ? null : retrieved;
+    }
+
+    static <T> boolean supported(Class<T> clazz) {
+        return TO_SQL_WITH_INDEX.containsKey(clazz);
+    }
+
 }
