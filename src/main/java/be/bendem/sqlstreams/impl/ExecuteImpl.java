@@ -1,12 +1,13 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.Execute;
+import be.bendem.sqlstreams.PreparedExecute;
+import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 class ExecuteImpl<Statement extends PreparedStatement>
-        extends ParameterProviderImpl<Execute<Statement>, Statement> implements Execute<Statement> {
+        extends ParameterProviderImpl<PreparedExecute<Statement>, Statement> implements PreparedExecute<Statement> {
 
     private final Connection connection;
     private final boolean closeConnection;
@@ -21,12 +22,17 @@ class ExecuteImpl<Statement extends PreparedStatement>
     public boolean execute() {
         return Wrap.get(() -> {
             boolean value = statement.execute();
-            statement.close();
-            if (closeConnection) {
-                connection.close();
-            }
+            close();
             return value;
         });
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        if (closeConnection) {
+            Wrap.execute(connection::close);
+        }
     }
 
 }

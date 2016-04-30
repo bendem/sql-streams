@@ -1,5 +1,7 @@
 package be.bendem.sqlstreams;
 
+import be.bendem.sqlstreams.util.Wrap;
+
 import java.sql.PreparedStatement;
 
 /**
@@ -7,12 +9,16 @@ import java.sql.PreparedStatement;
  *
  * @param <Statement> the type of the statement
  */
-public interface StatementHolder<Statement extends PreparedStatement> {
+public interface StatementHolder<Statement extends PreparedStatement> extends AutoCloseable {
 
     /**
      * Returns the underlying statement.
      * @return the statement
      */
     Statement getStatement();
+
+    default void close() {
+        Wrap.execute(getStatement()::close);
+    }
 
 }

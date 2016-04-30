@@ -1,6 +1,7 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.SqlFunction;
+import be.bendem.sqlstreams.util.SqlFunction;
+import be.bendem.sqlstreams.util.Tuple2;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -20,6 +21,14 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
     @SuppressWarnings("unchecked")
     public static <T> ClassMapping<T> get(Class<T> clazz) {
         return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
+    }
+
+    static <T1, T2> Tuple2<T1, T2> combine(ResultSet rs, ClassMapping<T1> t1, ClassMapping<T2> t2) throws SQLException {
+        Object[] values1 = t1.getValues(0, t1.constructor.get().getParameters(), rs);
+        Object[] values2 = t2.getValues(values1.length, t2.constructor.get().getParameters(), rs);
+        return new Tuple2<>(
+            t1.instanciate(values1),
+            t2.instanciate(values2));
     }
 
     @SuppressWarnings("unchecked")
@@ -58,11 +67,14 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         constructor.setAccessible(true);
     }
 
-    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) {
-        Object[] values = new Object[parameters.length];
+    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) throws SQLException {
+        return getValues(0, parameters, resultSet);
+    }
 
+    private Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
+        Object[] values = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            values[i] = SqlBindings.map(resultSet, i + 1, parameters[i].getType());
+            values[i] = SqlBindings.map(resultSet, i + offset + 1, parameters[i].getType());
         }
         return values;
     }
@@ -73,10 +85,12 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         if (constructor == null) {
             throw new IllegalStateException("constructor got gc'd, how did that happen?");
         }
-        Object[] values = getValues(constructor.getParameters(), resultSet);
+        return instanciate(getValues(constructor.getParameters(), resultSet));
+    }
 
+    private T instanciate(Object[] values) {
         try {
-            return constructor.newInstance(values);
+            return constructor.get().newInstance(values);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

@@ -1,5 +1,7 @@
 package be.bendem.sqlstreams;
 
+import be.bendem.sqlstreams.util.SqlConsumer;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -24,6 +26,15 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
      * @return {@code this} for chaining
      */
     Provider prepare(SqlConsumer<Statement> preparator);
+
+    /**
+     * Sets multiple parameters using magic bindings.
+     *
+     * @param params parameters to set
+     * @return {@code this} for chaining
+     * @see ParameterProvider#setMagic(int, Object)
+     */
+    Provider with(Object... params);
 
     /**
      * Sets the designated parameter based on the type of the parameter given.

@@ -2,6 +2,7 @@ package be.bendem.sqlstreams.impl;
 
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +24,7 @@ class ColumnNamesClassMapping<T> extends ClassMapping<T> {
     }
 
     @Override
-    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) {
+    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) throws SQLException {
         Object[] values = new Object[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {

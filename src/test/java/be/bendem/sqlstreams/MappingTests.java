@@ -43,9 +43,9 @@ public class MappingTests {
             "id integer primary key autoincrement not null," +
             "email varchar(255) unique not null," +
             "password char(60) not null" +
-        ")").execute();
+        ")");
 
-        sql.update("insert into users (email, password) values ('x@x.com', 'bcrypted password')").count();
+        sql.update("insert into users (email, password) values ('x@x.com', 'bcrypted password')");
     }
 
     @After
@@ -55,7 +55,7 @@ public class MappingTests {
 
     @Test
     public void testSimpleMapping() {
-        try(Stream<User> userStream = sql.query("select * from users").mapTo(User.class)) {
+        try (Stream<User> userStream = sql.query("select * from users", User.class)) {
             List<User> users = userStream.collect(Collectors.toList());
             Assert.assertEquals(1, users.size());
             Assert.assertEquals(1, users.get(0).id);
@@ -66,7 +66,7 @@ public class MappingTests {
 
     @Test
     public void testColumnNamesMapping() {
-        try(Stream<UserEmail> userStream = sql.query("select * from users").mapTo(UserEmail.class, "email", "password")) {
+        try (Stream<UserEmail> userStream = sql.prepareQuery("select * from users").mapTo(UserEmail.class, "email", "password")) {
             List<UserEmail> users = userStream.collect(Collectors.toList());
             Assert.assertEquals(1, users.size());
             Assert.assertEquals("x@x.com", users.get(0).email);
@@ -76,7 +76,7 @@ public class MappingTests {
 
     @Test
     public void testColumnIndexesMapping() {
-        try(Stream<UserEmail> userStream = sql.query("select * from users").mapTo(UserEmail.class, 2, 3)) {
+        try (Stream<UserEmail> userStream = sql.prepareQuery("select * from users").mapTo(UserEmail.class, 2, 3)) {
             List<UserEmail> users = userStream.collect(Collectors.toList());
             Assert.assertEquals(1, users.size());
             Assert.assertEquals("x@x.com", users.get(0).email);

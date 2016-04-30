@@ -1,18 +1,17 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.Update;
+import be.bendem.sqlstreams.PreparedUpdate;
+import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
-class UpdateImpl<Statement extends PreparedStatement>
-        extends ParameterProviderImpl<Update<Statement>, Statement> implements Update<Statement> {
+class UpdateImpl extends ParameterProviderImpl<PreparedUpdate, PreparedStatement> implements PreparedUpdate {
 
     private final Connection connection;
     private final boolean closeConnection;
 
-    UpdateImpl(Connection connection, Statement statement, boolean closeConnection) {
+    UpdateImpl(Connection connection, PreparedStatement statement, boolean closeConnection) {
         super(statement);
         this.connection = connection;
         this.closeConnection = closeConnection;
@@ -20,26 +19,18 @@ class UpdateImpl<Statement extends PreparedStatement>
 
     @Override
     public int count() {
-        return Wrap.get(() -> {
-            int count = statement.executeUpdate();
-            close();
-            return count;
-        });
+        return Wrap.get(statement::executeUpdate);
     }
 
     @Override
     public long largeCount() {
-        return Wrap.get(() -> {
-            long count = statement.executeLargeUpdate();
-            close();
-            return count;
-        });
+        return Wrap.get(statement::executeLargeUpdate);
     }
 
-    private void close() throws SQLException {
-        statement.close();
+    public void close() {
+        super.close();
         if (closeConnection) {
-            connection.close();
+            Wrap.execute(connection::close);
         }
     }
 }

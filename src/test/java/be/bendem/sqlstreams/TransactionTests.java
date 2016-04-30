@@ -16,7 +16,7 @@ public class TransactionTests {
     @Before
     public void setup() throws Exception {
         sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer)").execute();
+        sql.execute("create table test (a integer)");
     }
 
     @After
@@ -27,17 +27,17 @@ public class TransactionTests {
     @Test
     public void testTransaction() {
         try (Transaction transaction = sql.transaction()) {
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
+            Assert.assertEquals(1, transaction.update(INSERT, 1));
             transaction.rollback();
-            Assert.assertEquals(0, transaction.query("select * from test").map(rs -> 0).count());
+            Assert.assertEquals(0, transaction.query("select * from test", rs -> 0).count());
 
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
+            Assert.assertEquals(1, transaction.update(INSERT, 1));
             transaction.commit();
-            Assert.assertEquals(1, transaction.query("select * from test").map(rs -> 0).count());
+            Assert.assertEquals(1, transaction.query("select * from test", rs -> 0).count());
 
-            Assert.assertEquals(1, transaction.update(INSERT, 1).count());
+            Assert.assertEquals(1, transaction.update(INSERT, 1));
         } // rollback
-        Assert.assertEquals(1, sql.query("select * from test").map(rs -> 0).count());
+        Assert.assertEquals(1, sql.query("select * from test", rs -> 0).count());
     }
 
     @Test

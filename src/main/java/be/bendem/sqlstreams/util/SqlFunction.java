@@ -1,4 +1,4 @@
-package be.bendem.sqlstreams;
+package be.bendem.sqlstreams.util;
 
 import java.sql.SQLException;
 

@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,7 +19,7 @@ public class QueryTests {
     @Before
     public void setup() throws Exception {
         sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer)").execute();
+        sql.execute("create table test (a integer)");
     }
 
     @After
@@ -30,25 +29,30 @@ public class QueryTests {
 
     @Test
     public void testEmptySqlQuery() {
-        try(Stream<Integer> query = sql.query("select * from test").map(rs -> 0)) {
+        try (Stream<Integer> query = sql.query("select * from test", rs -> 0)) {
             Assert.assertEquals(0, query.count());
         }
     }
 
     @Test
     public void testInsertAndSqlQuery() {
-        Assert.assertEquals(1, sql.update("insert into test values (1)").count());
-        Assert.assertEquals(1, sql.update(INSERT, 2).count());
-        Assert.assertEquals(1, sql.update(INSERT).setInt(1, 3).count());
+        Assert.assertEquals(1, sql.update("insert into test values (1)"));
+        Assert.assertEquals(1, sql.update(INSERT, 2));
+        try (PreparedUpdate update = sql.prepareUpdate(INSERT)) {
+            Assert.assertEquals(1, update.setInt(1, 3).count());
+        }
+        try (PreparedUpdate update = sql.prepareUpdate(INSERT)) {
+            Assert.assertEquals(1, update.with(4).count());
+        }
 
-        try(Stream<Integer> query = sql.query("select * from test order by 1").map(rs -> rs.getInt(1))) {
-            Assert.assertEquals(Arrays.asList(1, 2, 3), query.collect(Collectors.toList()));
+        try (Stream<Integer> query = sql.query("select * from test order by 1", rs -> rs.getInt(1))) {
+            Assert.assertEquals(Arrays.asList(1, 2, 3, 4), query.collect(Collectors.toList()));
         }
     }
 
     @Test
     public void testSingleConnectionDataSource() {
-        Update<PreparedStatement> update = sql.update(INSERT, 1);
+        PreparedUpdate update = sql.prepareUpdate(INSERT, 1);
 
         try {
             sql.update("");
@@ -56,9 +60,10 @@ public class QueryTests {
         } catch(IllegalStateException e) {}
 
         Assert.assertEquals(1, update.count());
+        update.close();
         try {
             sql.update(INSERT, 1);
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             Assert.fail(e.getMessage());
         }
     }

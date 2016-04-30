@@ -1,11 +1,13 @@
 package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.*;
+import be.bendem.sqlstreams.util.SqlFunction;
+import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -17,8 +19,12 @@ public class SqlImpl implements Sql {
 
     private final DataSource dataSource;
 
+    SqlImpl() {
+        dataSource = null;
+    }
+
     public SqlImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
+        this.dataSource = Objects.requireNonNull(dataSource);
     }
 
     protected Connection getConnection() {
@@ -29,47 +35,36 @@ public class SqlImpl implements Sql {
         return true;
     }
 
-    private <Provider extends ParameterProvider<Provider, Statement>, Statement extends PreparedStatement> Provider bind(
-            Provider parameterProvider, Object[] parameters) {
-        for (int i = 0; i < parameters.length; i++) {
-            parameterProvider.setMagic(i + 1, parameters[i]);
-        }
-        return parameterProvider;
-    }
-
     @Override
     public Transaction transaction() {
         return new TransactionImpl(getConnection());
     }
 
     @Override
-    public Query<PreparedStatement> query(String sql, Object... parameters) {
+    public PreparedQuery prepareQuery(String sql, Object... parameters) {
         Connection connection = getConnection();
-
-        return bind(
-            new QueryImpl<>(
-                connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
-            parameters);
+        return new QueryImpl(
+            connection,
+            Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            closeConnectionAfterAction());
     }
 
     @Override
-    public Execute<PreparedStatement> execute(String sql, Object... parameters) {
+    public PreparedUpdate prepareUpdate(String sql, Object... parameters) {
         Connection connection = getConnection();
-
-        return bind(
-            new ExecuteImpl<>(
-                connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
-            parameters);
+        return  new UpdateImpl(
+            connection,
+            Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            closeConnectionAfterAction());
     }
 
     @Override
-    public Update<PreparedStatement> update(String sql, Object... parameters) {
+    public PreparedExecute prepareExecute(String sql, Object... parameters) {
         Connection connection = getConnection();
-
-        return bind(
-            new UpdateImpl<>(
-                connection, Wrap.get(() -> connection.prepareStatement(sql)), closeConnectionAfterAction()),
-            parameters);
+        return new ExecuteImpl<>(
+            connection,
+            Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            closeConnectionAfterAction());
     }
 
     static <T> Stream<T> streamFromResultSet(SqlFunction<ResultSet, T> mapping, ResultSet resultSet) {

@@ -1,6 +1,6 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.SqlSupplier;
+import be.bendem.sqlstreams.util.SqlSupplier;
 
 import java.sql.Connection;
 import java.sql.SQLException;

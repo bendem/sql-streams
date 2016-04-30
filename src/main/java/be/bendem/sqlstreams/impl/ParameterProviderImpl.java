@@ -1,7 +1,8 @@
 package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.ParameterProvider;
-import be.bendem.sqlstreams.SqlConsumer;
+import be.bendem.sqlstreams.util.SqlConsumer;
+import be.bendem.sqlstreams.util.Wrap;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -33,8 +34,14 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
     }
 
     @Override
+    public Provider with(Object... params) {
+        Wrap.execute(() -> SqlBindings.map(statement, params, 0));
+        return (Provider) this;
+    }
+
+    @Override
     public Provider setMagic(int index, Object x) {
-        SqlBindings.map(statement, index, Objects.requireNonNull(x));
+        Wrap.execute(() -> SqlBindings.map(statement, index, Objects.requireNonNull(x)));
         return (Provider) this;
     }
 

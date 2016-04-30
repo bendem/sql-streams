@@ -1,6 +1,7 @@
 package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.Transaction;
+import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
 
@@ -9,7 +10,6 @@ class TransactionImpl extends SqlImpl implements Transaction {
     private final Connection connection;
 
     TransactionImpl(Connection connection) {
-        super(null);
         this.connection = connection;
         Wrap.execute(() -> connection.setAutoCommit(false));
     }

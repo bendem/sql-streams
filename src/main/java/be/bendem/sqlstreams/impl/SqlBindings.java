@@ -26,37 +26,40 @@ final class SqlBindings {
 
     private static final SqlBindings INSTANCE = new SqlBindings();
 
-    static <T> void map(PreparedStatement stmt, int index, T value) {
+    static <Statement extends PreparedStatement> Statement map(Statement stmt, Object[] params, int offset) throws SQLException {
+        for (int i = 0; i < params.length; ++i) {
+            map(stmt, i + offset + 1, params[i]);
+        }
+        return stmt;
+    }
+
+    static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
         @SuppressWarnings("unchecked")
         ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) INSTANCE.toSqlWithIndex.get(value.getClass());
         if (toSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + value.getClass());
         }
-        Wrap.execute(() -> toSqlBinding.bind(stmt, index, value));
+        toSqlBinding.bind(stmt, index, value);
     }
 
-    static <T> T map(ResultSet resultSet, int index, Class<T> clazz) {
+    static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) INSTANCE.fromSqlWithIndex.get(clazz);
         if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
-        return Wrap.get(() -> {
-            T retrieved = fromSqlBinding.retrieve(resultSet, index);
-            return resultSet.wasNull() ? null : retrieved;
-        });
+        T retrieved = fromSqlBinding.retrieve(resultSet, index);
+        return resultSet.wasNull() ? null : retrieved;
     }
 
-    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) {
+    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) INSTANCE.fromSqlWithName.get(clazz);
         if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
-        return Wrap.get(() -> {
-            T retrieved = fromSqlBinding.retrieve(resultSet, name);
-            return resultSet.wasNull() ? null : retrieved;
-        });
+        T retrieved = fromSqlBinding.retrieve(resultSet, name);
+        return resultSet.wasNull() ? null : retrieved;
     }
 
     static <T> boolean supported(Class<T> clazz) {
