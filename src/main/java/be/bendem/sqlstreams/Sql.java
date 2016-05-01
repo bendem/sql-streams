@@ -14,18 +14,37 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 /**
- *
+ * This class is the main entry point from this library. It provides static
+ * methods to set it up from a {@link Connection} or a {@link DataSource}
+ * as well as all methods to query it.
  */
 public interface Sql extends AutoCloseable {
 
+    /**
+     * Constructs a {@link Sql} instance holding a single connection.
+     * @param connection the connection to use
+     * @return the newly created {@code Sql} instance
+     */
     static Sql connect(Connection connection) {
         return connect(new SingleConnectionDataSource(connection));
     }
 
+    /**
+     * Constructs a {@link Sql} instance retrieving new {@link Connection}s
+     * from the provided {@link SqlSupplier Supplier} as needed.
+     * @param connectionSupplier an object supplying connections
+     * @return the newly created {@code Sql} instance
+     */
     static Sql connect(SqlSupplier<Connection> connectionSupplier) {
         return connect(new SuppliedConnectionsDataSource(connectionSupplier));
     }
 
+    /**
+     * Constructs a {@link Sql} instance retrieving new {@link Connection}s
+     * from the provided {@link DataSource} as needed.
+     * @param dataSource the datasource supplying connections
+     * @return the newly created {@code Sql} instance
+     */
     static Sql connect(DataSource dataSource) {
         return new SqlImpl(dataSource);
     }
