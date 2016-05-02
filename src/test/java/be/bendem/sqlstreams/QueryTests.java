@@ -12,14 +12,14 @@ import java.util.stream.Stream;
 
 public class QueryTests {
 
-    private static final String INSERT = "insert into test values (?)";
+    private static final String INSERT = "insert into test (b) values (?)";
 
     private Sql sql;
 
     @Before
     public void setup() throws Exception {
         sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer)");
+        sql.execute("create table test (a integer primary key autoincrement not null, b integer)");
     }
 
     @After
@@ -36,7 +36,7 @@ public class QueryTests {
 
     @Test
     public void testInsertAndSqlQuery() {
-        Assert.assertEquals(1, sql.update("insert into test values (1)"));
+        Assert.assertEquals(1, sql.update("insert into test (b) values (1)"));
         Assert.assertEquals(1, sql.update(INSERT, 2));
         try (PreparedUpdate update = sql.prepareUpdate(INSERT)) {
             Assert.assertEquals(1, update.setInt(1, 3).count());
@@ -45,7 +45,7 @@ public class QueryTests {
             Assert.assertEquals(1, update.with(4).count());
         }
 
-        try (Stream<Integer> query = sql.query("select * from test order by 1", rs -> rs.getInt(1))) {
+        try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {
             Assert.assertEquals(Arrays.asList(1, 2, 3, 4), query.collect(Collectors.toList()));
         }
     }
