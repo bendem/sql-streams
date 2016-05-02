@@ -22,6 +22,7 @@ public interface Sql extends AutoCloseable {
 
     /**
      * Constructs a {@link Sql} instance holding a single connection.
+     *
      * @param connection the connection to use
      * @return the newly created {@code Sql} instance
      */
@@ -32,6 +33,7 @@ public interface Sql extends AutoCloseable {
     /**
      * Constructs a {@link Sql} instance retrieving new {@link Connection}s
      * from the provided {@link SqlSupplier Supplier} as needed.
+     *
      * @param connectionSupplier an object supplying connections
      * @return the newly created {@code Sql} instance
      */
@@ -42,6 +44,7 @@ public interface Sql extends AutoCloseable {
     /**
      * Constructs a {@link Sql} instance retrieving new {@link Connection}s
      * from the provided {@link DataSource} as needed.
+     *
      * @param dataSource the datasource supplying connections
      * @return the newly created {@code Sql} instance
      */
@@ -61,6 +64,8 @@ public interface Sql extends AutoCloseable {
     PreparedQuery prepareQuery(String sql, Object... parameters);
 
     PreparedUpdate prepareUpdate(String sql, Object... parameters);
+
+    PreparedBatchUpdate prepareBatchUpdate(String sql);
 
     //PreparedUpdateAndGet prepareUpdateAndGet(String sql, Object... parameters);
 

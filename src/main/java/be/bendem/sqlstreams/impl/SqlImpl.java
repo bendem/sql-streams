@@ -7,6 +7,7 @@ import be.bendem.sqlstreams.util.Wrap;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -41,6 +42,20 @@ public class SqlImpl implements Sql {
     }
 
     @Override
+    public <R> Stream<R> query(String sql, SqlFunction<ResultSet, R> mapping) {
+        // TODO Benchmark it is actually worth it to use Statement over PreparedStatement
+        Connection connection = getConnection();
+        Statement statement = Wrap.get(connection::createStatement);
+        return streamFromResultSet(mapping, Wrap.get(() -> statement.executeQuery(sql)))
+            .onClose(() -> Wrap.execute(() -> {
+                statement.close();
+                if (closeConnectionAfterAction()) {
+                    connection.close();
+                }
+            }));
+    }
+
+    @Override
     public PreparedQuery prepareQuery(String sql, Object... parameters) {
         Connection connection = getConnection();
         return new QueryImpl(
@@ -55,6 +70,15 @@ public class SqlImpl implements Sql {
         return  new UpdateImpl(
             connection,
             Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            closeConnectionAfterAction());
+    }
+
+    @Override
+    public PreparedBatchUpdate prepareBatchUpdate(String sql) {
+        Connection connection = getConnection();
+        return new BatchUpdateImpl(
+            connection,
+            Wrap.get(() -> connection.prepareStatement(sql)),
             closeConnectionAfterAction());
     }
 
