@@ -20,11 +20,7 @@ class ExecuteImpl<Statement extends PreparedStatement>
 
     @Override
     public boolean execute() {
-        return Wrap.get(() -> {
-            boolean value = statement.execute();
-            close();
-            return value;
-        });
+        return super.execute();
     }
 
     @Override
