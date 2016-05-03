@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 // TODO Tests
 public class Tuple2<Left, Right> {
@@ -25,6 +26,10 @@ public class Tuple2<Left, Right> {
                 left.putAll(right);
                 return left;
             });
+    }
+
+    public static <R, Left extends R, Right extends R> Stream<R> stream(Tuple2<Left, Right> tuple) {
+        return Stream.of(tuple.left, tuple.right);
     }
 
     public final Left left;
