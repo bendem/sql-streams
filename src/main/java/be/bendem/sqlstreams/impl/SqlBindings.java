@@ -14,14 +14,17 @@ final class SqlBindings {
 
     private SqlBindings() {}
 
+    @FunctionalInterface
     private interface ToSqlBindingWithIndex<T> {
         void bind(PreparedStatement statement, int index, T value) throws SQLException;
     }
 
+    @FunctionalInterface
     private interface FromSqlBindingWithIndex<T> {
         T retrieve(ResultSet resultSet, int index) throws SQLException;
     }
 
+    @FunctionalInterface
     private interface FromSqlBindingWithName<T> {
         T retrieve(ResultSet resultSet, String name) throws SQLException;
     }
