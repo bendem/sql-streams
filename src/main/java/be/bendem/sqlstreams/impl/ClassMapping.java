@@ -3,6 +3,8 @@ package be.bendem.sqlstreams.impl;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Tuple2;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -23,18 +25,29 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
     }
 
+    private static <T> T instanciate(Constructor<T> constructor, Object[] values) {
+        try {
+            return constructor.newInstance(values);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static <T1, T2> Tuple2<T1, T2> combine(ResultSet rs, ClassMapping<T1> t1, ClassMapping<T2> t2) throws SQLException {
-        Object[] values1 = t1.getValues(0, t1.constructor.get().getParameters(), rs);
-        Object[] values2 = t2.getValues(values1.length, t2.constructor.get().getParameters(), rs);
+        Constructor<T1> t1Constructor = t1.getConstructor();
+        Constructor<T2> t2Constructor = t2.getConstructor();
+        Object[] values1 = t1.getValues(0, t1Constructor.getParameters(), rs);
+        Object[] values2 = t2.getValues(values1.length, t2Constructor.getParameters(), rs);
         return new Tuple2<>(
-            t1.instanciate(values1),
-            t2.instanciate(values2));
+            instanciate(t1Constructor, values1),
+            instanciate(t2Constructor, values2));
     }
 
     @SuppressWarnings("unchecked")
     static <T> Constructor<T> findConstructor(Class<T> clazz, int parameters) {
         for (Constructor<?> constructor : clazz.getConstructors()) {
-            if (constructor.getParameterCount() == parameters && checkValidParameters(constructor.getParameterTypes())) {
+            if (constructor.getParameterCount() == parameters
+                    && checkValidParameters(constructor.getParameterTypes())) {
                 return (Constructor<T>) constructor;
             }
         }
@@ -55,20 +68,31 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return Arrays.stream(parameterTypes).allMatch(SqlBindings::supported);
     }
 
-    private final WeakReference<Constructor<T>> constructor;
+    /**
+     * It is only acceptable to store strong references to classes if they
+     * come from the system classloader which hopefully won't be trashed
+     * during the lifetime of the application.
+     *
+     * For that, we rely on {@link SqlBindings#supported(Class)} returning
+     * false for non JRE classes.
+     */
+    private final Class<?>[] constructorParameterTypes;
+    private final Reference<Class<T>> clazz;
+    private Reference<Constructor<T>> constructor;
 
     private ClassMapping(Class<T> clazz) {
         this(findConstructor(clazz));
     }
 
     ClassMapping(Constructor<T> constructor) {
-        this.constructor = new WeakReference<>(constructor);
+        this.constructorParameterTypes = constructor.getParameterTypes();
+        this.clazz = new WeakReference<>(constructor.getDeclaringClass());
+        // FIXME Using a SoftReference here is not optimal because it'll still
+        // prevent the GC from retrieving the Class until free memory becomes
+        // sparse enough to cause soft reference collection.
+        this.constructor = new SoftReference<>(constructor);
 
         constructor.setAccessible(true);
-    }
-
-    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) throws SQLException {
-        return getValues(0, parameters, resultSet);
     }
 
     private Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
@@ -79,20 +103,27 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return values;
     }
 
-    @Override
-    public T apply(ResultSet resultSet) throws SQLException {
+    private Constructor<T> getConstructor() {
         Constructor<T> constructor = this.constructor.get();
         if (constructor == null) {
-            throw new IllegalStateException("constructor got gc'd, how did that happen?");
+            try {
+                Class<T> clazz = this.clazz.get();
+                if (clazz == null) {
+                    throw new Error(
+                        "You're requesting a constructor for a class that got gc'd, how did that happen?");
+                }
+                this.constructor = new SoftReference<>(constructor = clazz.getConstructor(constructorParameterTypes));
+            } catch (NoSuchMethodException e) {
+                throw new Error("Constructor for " + Arrays.toString(constructorParameterTypes) + " disappeared");
+            }
         }
-        return instanciate(getValues(constructor.getParameters(), resultSet));
+        return constructor;
     }
 
-    private T instanciate(Object[] values) {
-        try {
-            return constructor.get().newInstance(values);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public T apply(ResultSet resultSet) throws SQLException {
+        Constructor<T> constructor = getConstructor();
+        return instanciate(constructor, getValues(0, constructor.getParameters(), resultSet));
     }
+
 }

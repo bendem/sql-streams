@@ -29,6 +29,10 @@ final class SqlBindings {
         T retrieve(ResultSet resultSet, String name) throws SQLException;
     }
 
+    /**
+     * This class only contains classes loaded from the jre (Class#getClassLoader() == null)
+     * so that we don't leak classes in an environment where classloaders can be replaced.
+     */
     private static final Map<Class<?>, FromSqlBindingWithIndex<?>> FROM_SQL_WITH_INDEX;
     private static final Map<Class<?>, ToSqlBindingWithIndex<?>> TO_SQL_WITH_INDEX;
     private static final Map<Class<?>, FromSqlBindingWithName<?>> FROM_SQL_WITH_NAME;
