@@ -57,7 +57,7 @@ public class QueryTests {
         try {
             sql.update("");
             Assert.fail();
-        } catch(IllegalStateException e) {}
+        } catch (IllegalStateException expected) {}
 
         Assert.assertEquals(1, update.count());
         update.close();
