@@ -25,7 +25,7 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         return (ClassMapping<T>) MAPPINGS.computeIfAbsent(clazz, c -> new ClassMapping<>(clazz));
     }
 
-    private static <T> T instanciate(Constructor<T> constructor, Object[] values) {
+    private static <T> T instantiate(Constructor<T> constructor, Object[] values) {
         try {
             return constructor.newInstance(values);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -39,8 +39,8 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         Object[] values1 = t1.getValues(0, t1Constructor.getParameters(), rs);
         Object[] values2 = t2.getValues(values1.length, t2Constructor.getParameters(), rs);
         return new Tuple2<>(
-            instanciate(t1Constructor, values1),
-            instanciate(t2Constructor, values2));
+            instantiate(t1Constructor, values1),
+            instantiate(t2Constructor, values2));
     }
 
     @SuppressWarnings("unchecked")
@@ -123,7 +123,7 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
     @Override
     public T apply(ResultSet resultSet) throws SQLException {
         Constructor<T> constructor = getConstructor();
-        return instanciate(constructor, getValues(0, constructor.getParameters(), resultSet));
+        return instantiate(constructor, getValues(0, constructor.getParameters(), resultSet));
     }
 
 }
