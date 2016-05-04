@@ -11,15 +11,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-// TODO Tests
 public class Tuple2<Left, Right> {
 
-    public static <Left, Right> Collector<Tuple2<Left, Right>, ?, ? extends Map<Left, List<Right>>> grouping() {
-        return grouping((Supplier<Map<Left, List<Right>>>) HashMap::new, ArrayList::new);
+    public static <Left, Right> Collector<Tuple2<Left, Right>, ?, Map<Left, List<Right>>> grouping() {
+        return grouping(HashMap::new, ArrayList::new);
     }
 
-    public static <Left, Right> Collector<Tuple2<Left, Right>, ?, ? extends Map<Left, List<Right>>> grouping(
-            Supplier<? extends Map<Left, List<Right>>> mapSupplier, Supplier<? extends List<Right>> listSupplier) {
+    public static <Left, Right, L extends List<Right>, M extends Map<Left, L>> Collector<Tuple2<Left, Right>, ?, M> grouping(
+            Supplier<M> mapSupplier, Supplier<L> listSupplier) {
         return Collector.of(
             mapSupplier,
             (map, tuple) -> map.computeIfAbsent(tuple.left, left -> listSupplier.get()).add(tuple.right),
