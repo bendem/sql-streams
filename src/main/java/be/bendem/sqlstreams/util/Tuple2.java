@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -76,6 +77,21 @@ public class Tuple2<Left, Right> {
 
     public <T> T transform(BiFunction<Left, Right, T> mapping) {
         return mapping.apply(left, right);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tuple2<?, ?>)) return false;
+
+        Tuple2<?, ?> tuple2 = (Tuple2<?, ?>) o;
+        return Objects.equals(left, tuple2.left)
+            && Objects.equals(right, tuple2.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(left, right);
     }
 
 }
