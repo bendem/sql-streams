@@ -95,7 +95,7 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
         constructor.setAccessible(true);
     }
 
-    private Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
+    protected Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
         Object[] values = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             values[i] = SqlBindings.map(resultSet, i + offset + 1, parameters[i].getType());

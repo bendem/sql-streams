@@ -24,7 +24,12 @@ class ColumnNamesClassMapping<T> extends ClassMapping<T> {
     }
 
     @Override
-    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) throws SQLException {
+    protected Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
+        if (offset != 0) {
+            throw new IllegalArgumentException(
+                ColumnClassMapping.class.getName() + " does not support mapping from non 0 offset");
+        }
+
         Object[] values = new Object[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {

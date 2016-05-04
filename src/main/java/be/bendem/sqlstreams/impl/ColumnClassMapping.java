@@ -23,11 +23,11 @@ class ColumnClassMapping<T> extends ClassMapping<T> {
     }
 
     @Override
-    protected Object[] getValues(Parameter[] parameters, ResultSet resultSet) throws SQLException {
+    protected Object[] getValues(int offset, Parameter[] parameters, ResultSet resultSet) throws SQLException {
         Object[] values = new Object[parameters.length];
 
         for (int i = 0; i < columns.length; i++) {
-            values[i] = SqlBindings.map(resultSet, columns[i], parameters[i].getType());
+            values[i] = SqlBindings.map(resultSet, offset + columns[i], parameters[i].getType());
         }
         return values;
     }
