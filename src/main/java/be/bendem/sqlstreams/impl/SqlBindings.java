@@ -30,8 +30,8 @@ final class SqlBindings {
     }
 
     /**
-     * This class only contains classes loaded from the jre (Class#getClassLoader() == null)
-     * so that we don't leak classes in an environment where classloaders can be replaced.
+     * These maps only contains classes loaded from the jre (Class#getClassLoader() == null)
+     * so we don't leak classes in an environment where classloaders can be replaced.
      */
     private static final Map<Class<?>, FromSqlBindingWithIndex<?>> FROM_SQL_WITH_INDEX;
     private static final Map<Class<?>, ToSqlBindingWithIndex<?>> TO_SQL_WITH_INDEX;
