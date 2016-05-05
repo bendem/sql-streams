@@ -1,33 +1,17 @@
 package be.bendem.sqlstreams;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.DriverManager;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class BatchTests {
-
-    private Sql sql;
-
-    @Before
-    public void setup() throws Exception {
-        sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer primary key autoincrement not null, b integer)");
-    }
-
-    @After
-    public void teardown() throws Exception {
-        sql.close();
-    }
+public class BatchTests extends BaseTests {
 
     @Test
     public void testCount() {
-        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into test (b) values (?)")) {
+        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate(INSERT_INTO_TEST)) {
             int count = batch
                 .with(2).newBatch()
                 .with(3).newBatch()
@@ -44,7 +28,7 @@ public class BatchTests {
 
     @Test
     public void testCounts() {
-        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into test (b) values (?)")) {
+        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate(INSERT_INTO_TEST)) {
             int[] counts = batch
                 .with(2).newBatch()
                 .with(3).newBatch()

@@ -16,6 +16,7 @@ repositories {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
+    testCompile 'org.postgresql:postgresql:9.4.1208'
 }
 
 javadoc {
@@ -23,6 +24,14 @@ javadoc {
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
     options.links 'https://docs.oracle.com/javase/8/docs/api/'
+}
+
+test {
+    useJUnit()
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
 }
 
 jacocoTestReport {

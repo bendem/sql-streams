@@ -1,31 +1,13 @@
 package be.bendem.sqlstreams;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.DriverManager;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class QueryTests {
-
-    private static final String INSERT = "insert into test (b) values (?)";
-
-    private Sql sql;
-
-    @Before
-    public void setup() throws Exception {
-        sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer primary key autoincrement not null, b integer)");
-    }
-
-    @After
-    public void teardown() throws Exception {
-        sql.close();
-    }
+public class QueryTests extends BaseTests {
 
     @Test
     public void testEmptySqlQuery() {
@@ -37,11 +19,11 @@ public class QueryTests {
     @Test
     public void testInsertAndSqlQuery() {
         Assert.assertEquals(1, sql.update("insert into test (b) values (1)"));
-        Assert.assertEquals(1, sql.update(INSERT, 2));
-        try (PreparedUpdate update = sql.prepareUpdate(INSERT)) {
+        Assert.assertEquals(1, sql.update(INSERT_INTO_TEST, 2));
+        try (PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST)) {
             Assert.assertEquals(1, update.setInt(1, 3).count());
         }
-        try (PreparedUpdate update = sql.prepareUpdate(INSERT)) {
+        try (PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST)) {
             Assert.assertEquals(1, update.with(4).count());
         }
 
@@ -52,7 +34,7 @@ public class QueryTests {
 
     @Test
     public void testSingleConnectionDataSource() {
-        PreparedUpdate update = sql.prepareUpdate(INSERT, 1);
+        PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST, 1);
 
         try {
             sql.update("");
@@ -62,7 +44,7 @@ public class QueryTests {
         Assert.assertEquals(1, update.count());
         update.close();
         try {
-            sql.update(INSERT, 1);
+            sql.update(INSERT_INTO_TEST, 1);
         } catch (IllegalStateException e) {
             Assert.fail(e.getMessage());
         }

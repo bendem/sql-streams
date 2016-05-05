@@ -49,11 +49,14 @@ class QueryImpl extends ParameterProviderImpl<PreparedQuery, PreparedStatement> 
     @Override
     public <R> Stream<R> map(SqlFunction<ResultSet, R> mapping) {
         return SqlImpl.streamFromResultSet(mapping, Wrap.get(statement::executeQuery))
-            .onClose(() -> Wrap.execute(() -> {
-                statement.close();
-                if (closeConnection) {
-                    connection.close();
-                }
-            }));
+            .onClose(this::close);
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        if (closeConnection) {
+            Wrap.execute(connection::close);
+        }
     }
 }

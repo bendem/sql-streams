@@ -1,43 +1,30 @@
 package be.bendem.sqlstreams;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.DriverManager;
+import java.util.stream.Stream;
 
-public class TransactionTests {
-
-    private static final String INSERT = "insert into test values (?)";
-
-    private Sql sql;
-
-    @Before
-    public void setup() throws Exception {
-        sql = Sql.connect(DriverManager.getConnection("jdbc:sqlite:"));
-        sql.execute("create table test (a integer)");
-    }
-
-    @After
-    public void teardown() throws Exception {
-        sql.close();
-    }
+public class TransactionTests extends BaseTests {
 
     @Test
     public void testTransaction() {
         try (Transaction transaction = sql.transaction()) {
-            Assert.assertEquals(1, transaction.update(INSERT, 1));
+            Assert.assertEquals(1, transaction.update(INSERT_INTO_TEST, 1));
             transaction.rollback();
             Assert.assertEquals(0, transaction.query("select * from test", rs -> 0).count());
 
-            Assert.assertEquals(1, transaction.update(INSERT, 1));
+            Assert.assertEquals(1, transaction.update(INSERT_INTO_TEST, 1));
             transaction.commit();
             Assert.assertEquals(1, transaction.query("select * from test", rs -> 0).count());
 
-            Assert.assertEquals(1, transaction.update(INSERT, 1));
+            Assert.assertEquals(1, transaction.update(INSERT_INTO_TEST, 1));
         } // rollback
-        Assert.assertEquals(1, sql.query("select * from test", rs -> 0).count());
+
+        // Make sure the connection is still usable
+        try (Stream<Integer> stream = sql.query("select * from test", rs -> 0)) {
+            Assert.assertEquals(1, stream.count());
+        }
     }
 
     @Test
