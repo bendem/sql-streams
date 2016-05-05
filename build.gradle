@@ -29,9 +29,7 @@ javadoc {
 test {
     useJUnit()
 
-    beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
-    }
+    testLogging.exceptionFormat = 'full'
 }
 
 jacocoTestReport {
