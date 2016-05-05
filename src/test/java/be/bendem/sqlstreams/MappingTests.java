@@ -16,11 +16,18 @@ public class MappingTests {
         int id;
         String email;
         String password;
+        boolean activated;
 
         public User(int id, String email, String password) {
+            this(id, email, password, false);
+        }
+
+        @MappingConstructor
+        public User(int id, String email, String password, boolean activated) {
             this.id = id;
             this.email = email;
             this.password = password;
+            this.activated = activated;
         }
     }
 
@@ -42,7 +49,8 @@ public class MappingTests {
         sql.execute("create table users (" +
             "id integer primary key autoincrement not null," +
             "email varchar(255) unique not null," +
-            "password char(60) not null" +
+            "password char(60) not null," +
+            "activated boolean default false not null" +
         ")");
 
         sql.update("insert into users (email, password) values ('x@x.com', 'bcrypted password')");
@@ -81,6 +89,69 @@ public class MappingTests {
             Assert.assertEquals(1, users.size());
             Assert.assertEquals("x@x.com", users.get(0).email);
             Assert.assertEquals("bcrypted password", users.get(0).password);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoConstructorMatchingColumnMapping() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(User.class, 1);
+            Assert.fail();
+        }
+    }
+
+    static class NoConstructor {}
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoConstructorMapping() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(NoConstructor.class);
+            Assert.fail();
+        }
+    }
+
+    static class MultipleMarkedConstructor {
+        @MappingConstructor
+        public MultipleMarkedConstructor() {}
+
+        @MappingConstructor
+        public MultipleMarkedConstructor(Void ignore) {}
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testMultipleMarkedConstructors() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(MultipleMarkedConstructor.class);
+            Assert.fail();
+        }
+    }
+
+    static class MultipleNonMarkedConstructor {
+        public MultipleNonMarkedConstructor(boolean bool) {}
+
+        public MultipleNonMarkedConstructor(int i) {}
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testMultipleNonMarkedConstructorsWithColumnsSpecified() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(MultipleNonMarkedConstructor.class, 1);
+            Assert.fail();
+        }
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testMultipleNonMarkedConstructors() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(MultipleNonMarkedConstructor.class);
+            Assert.fail();
+        }
+    }
+
+    static class InvalidConstructor {
+        public InvalidConstructor(User user) {}
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidConstructorMapping() {
+        try (PreparedQuery query = sql.prepareQuery("select * from users")) {
+            query.mapTo(InvalidConstructor.class);
+            Assert.fail();
         }
     }
 

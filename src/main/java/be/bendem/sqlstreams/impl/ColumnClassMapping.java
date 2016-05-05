@@ -18,7 +18,7 @@ class ColumnClassMapping<T> extends ClassMapping<T> {
     private final int[] columns;
 
     private ColumnClassMapping(Class<T> clazz, int[] columns) {
-        super(findConstructor(clazz, columns.length));
+        super(Constructors.findConstructor(clazz, columns.length));
         this.columns = columns;
     }
 

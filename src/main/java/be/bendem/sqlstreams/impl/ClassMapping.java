@@ -1,5 +1,6 @@
 package be.bendem.sqlstreams.impl;
 
+import be.bendem.sqlstreams.MappingConstructor;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Tuple2;
 
@@ -11,10 +12,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 class ClassMapping<T> implements SqlFunction<ResultSet, T> {
 
@@ -43,31 +42,6 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
             instantiate(t2Constructor, values2));
     }
 
-    @SuppressWarnings("unchecked")
-    static <T> Constructor<T> findConstructor(Class<T> clazz, int parameters) {
-        for (Constructor<?> constructor : clazz.getConstructors()) {
-            if (constructor.getParameterCount() == parameters
-                    && checkValidParameters(constructor.getParameterTypes())) {
-                return (Constructor<T>) constructor;
-            }
-        }
-        throw new IllegalArgumentException("No constructor for " + clazz + " with " + parameters + " parameters");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> findConstructor(Class<T> clazz) {
-        for (Constructor<?> constructor : clazz.getConstructors()) {
-            if (checkValidParameters(constructor.getParameterTypes())) {
-                return (Constructor<T>) constructor;
-            }
-        }
-        throw new IllegalArgumentException("No constructor for " + clazz);
-    }
-
-    private static boolean checkValidParameters(Class<?>[] parameterTypes) {
-        return Arrays.stream(parameterTypes).allMatch(SqlBindings::supported);
-    }
-
     /**
      * It is only acceptable to store strong references to classes if they
      * come from the system classloader which hopefully won't be trashed
@@ -81,13 +55,13 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
     private Reference<Constructor<T>> constructor;
 
     private ClassMapping(Class<T> clazz) {
-        this(findConstructor(clazz));
+        this(Constructors.findConstructor(clazz));
     }
 
     ClassMapping(Constructor<T> constructor) {
         this.constructorParameterTypes = constructor.getParameterTypes();
         this.clazz = new WeakReference<>(constructor.getDeclaringClass());
-        // FIXME Using a SoftReference here is not optimal because it'll still
+        // NOTE Using a SoftReference here is not optimal because it'll still
         // prevent the GC from retrieving the Class until free memory becomes
         // sparse enough to cause soft reference collection.
         this.constructor = new SoftReference<>(constructor);
@@ -124,6 +98,81 @@ class ClassMapping<T> implements SqlFunction<ResultSet, T> {
     public T apply(ResultSet resultSet) throws SQLException {
         Constructor<T> constructor = getConstructor();
         return instantiate(constructor, getValues(0, constructor.getParameters(), resultSet));
+    }
+
+    static class Constructors {
+        @SuppressWarnings("unchecked")
+        static <T> Constructor<T> findConstructor(Class<T> clazz, int parameters) {
+            List<Constructor<?>> constructors = Arrays.stream(clazz.getConstructors())
+                .filter(constructor -> constructor.getParameterCount() == parameters)
+                .collect(Collectors.toList());
+
+            if (constructors.isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                    "No constructor for '%s' with exactly %d parameters", clazz, parameters));
+            }
+
+            if (constructors.size() != 1) {
+                throw new IllegalArgumentException(String.format(
+                    "Too many constructors for '%s' with exactly %d parameters (%s)",
+                    clazz, parameters, join(constructors)));
+            }
+
+            return checkValidParameters((Constructor<T>) constructors.iterator().next());
+        }
+
+        @SuppressWarnings("unchecked")
+        private static <T> Constructor<T> findConstructor(Class<T> clazz) {
+            Constructor<?>[] constructors = clazz.getConstructors();
+
+            if (constructors.length == 0) {
+                throw new IllegalArgumentException("No constructor for " + clazz);
+            }
+
+            if (constructors.length == 1) {
+                return checkValidParameters((Constructor<T>) constructors[0]);
+            }
+
+            Constructor<?> found = null;
+            for (Constructor<?> constructor : constructors) {
+                if (constructor.isAnnotationPresent(MappingConstructor.class)) {
+                    if (found != null) {
+                        throw new IllegalArgumentException(String.format(
+                            "Multiple constructors for '%s' marked with '%s' (at least '%s' and '%s')",
+                            clazz,  MappingConstructor.class, found, constructor));
+                    }
+                    found = constructor;
+                }
+            }
+
+            if (found == null) {
+                throw new IllegalArgumentException(String.format(
+                    "Too many constructors found for %s. Mark one with @%s",
+                    clazz, MappingConstructor.class.getSimpleName()));
+            }
+
+            return checkValidParameters((Constructor<T>) found);
+        }
+
+        private static <T> Constructor<T> checkValidParameters(Constructor<T> constructor) {
+            Set<? extends Class<?>> invalid = Arrays.stream(constructor.getParameterTypes())
+                .distinct()
+                .filter(c -> !SqlBindings.supported(c))
+                .collect(Collectors.toSet());
+            if (!invalid.isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                    "Unsupported parameters for constructor '%s' (%s).",
+                    constructor, join(invalid)));
+            }
+
+            return constructor;
+        }
+
+        private static <T> String join(Collection<T> collection) {
+            return collection.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+        }
     }
 
 }

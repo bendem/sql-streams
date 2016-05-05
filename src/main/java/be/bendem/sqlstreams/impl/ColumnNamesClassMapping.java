@@ -19,7 +19,7 @@ class ColumnNamesClassMapping<T> extends ClassMapping<T> {
 
     @SuppressWarnings("unchecked")
     private ColumnNamesClassMapping(Class<T> clazz, String[] columnNames) {
-        super(findConstructor(clazz, columnNames.length));
+        super(Constructors.findConstructor(clazz, columnNames.length));
         this.columnNames = columnNames;
     }
 
