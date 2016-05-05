@@ -11,7 +11,7 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Properties;
+import java.util.Optional;
 
 @RunWith(Parameterized.class)
 public abstract class BaseTests {
@@ -28,8 +28,7 @@ public abstract class BaseTests {
         ArrayList<Object[]> data = new ArrayList<>();
         data.add(new Object[] { Database.SQLITE });
 
-        Properties properties = System.getProperties();
-        if (properties.containsKey("PG_USER") && properties.contains("PG_PASSWORD")) {
+        if (System.getenv("PG_USER") != null && System.getenv("PG_PASSWORD") != null) {
             data.add(new Object[] { Database.POSTGRES });
         }
 
@@ -43,15 +42,13 @@ public abstract class BaseTests {
 
     @Before
     public void setup() {
-        Properties properties = System.getProperties();
-
         switch (database) {
         case POSTGRES:
-            String port = properties.getProperty("PG_PORT", "5435");
+            String port = Optional.ofNullable(System.getenv("PG_PORT")).orElse("5435");
             Connection connection = Wrap.get(() -> DriverManager.getConnection(
                 "jdbc:postgresql://localhost:" + port + "/test",
-                properties.getProperty("PG_USER"),
-                properties.getProperty("PG_PASSWORD")));
+                System.getenv("PG_USER"),
+                System.getenv("PG_PASSWORD")));
             sql = Sql.connect(connection);
             break;
         case SQLITE:
