@@ -20,7 +20,7 @@ public class MappingTests extends BaseTests {
 
         public UserNamePass(String name, String password) {
             this.name = name;
-            this.password = password;
+            this.password = password.trim();
         }
     }
 
