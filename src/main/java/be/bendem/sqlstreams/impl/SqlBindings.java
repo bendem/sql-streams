@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +48,10 @@ final class SqlBindings {
         addMapping(fromWithIndex, fromWithName, toWithIndex, Date.class, ResultSet::getDate, ResultSet::getDate, PreparedStatement::setDate);
         addMapping(fromWithIndex, fromWithName, toWithIndex, Time.class, ResultSet::getTime, ResultSet::getTime, PreparedStatement::setTime);
         addMapping(fromWithIndex, fromWithName, toWithIndex, Timestamp.class, ResultSet::getTimestamp, ResultSet::getTimestamp, PreparedStatement::setTimestamp);
+
+        addMapping(fromWithIndex, fromWithName, toWithIndex, LocalDate.class, (rs, i) -> rs.getDate(i).toLocalDate(), (rs, name) -> rs.getDate(name).toLocalDate(), (statement, index, value) -> statement.setDate(index, Date.valueOf(value)));
+        addMapping(fromWithIndex, fromWithName, toWithIndex, LocalDateTime.class, (rs, i) -> rs.getTimestamp(i).toLocalDateTime(), (rs, name) -> rs.getTimestamp(name).toLocalDateTime(), (statement, index, value) -> statement.setTimestamp(index, Timestamp.valueOf(value)));
+        addMapping(fromWithIndex, fromWithName, toWithIndex, LocalTime.class, (rs, i) -> rs.getTime(i).toLocalTime(), (rs, name) -> rs.getTime(name).toLocalTime(), (statement, index, value) -> statement.setTime(index, Time.valueOf(value)));
 
         addMapping(fromWithIndex, fromWithName, toWithIndex, String.class, ResultSet::getString, ResultSet::getString, PreparedStatement::setString);
 
@@ -113,7 +120,7 @@ final class SqlBindings {
     }
 
     static <T> boolean supported(Class<T> clazz) {
-        return TO_SQL_WITH_INDEX.containsKey(clazz);
+        return FROM_SQL_WITH_INDEX.containsKey(clazz);
     }
 
 }
