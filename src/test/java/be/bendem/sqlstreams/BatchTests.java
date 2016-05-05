@@ -26,7 +26,7 @@ public class BatchTests {
     }
 
     @Test
-    public void testBatch() {
+    public void testCount() {
         try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into test (b) values (?)")) {
             int count = batch
                 .with(2).newBatch()
@@ -35,6 +35,23 @@ public class BatchTests {
                 .count();
 
             Assert.assertEquals(3, count);
+        }
+
+        try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {
+            Assert.assertEquals(Arrays.asList(2, 3, 4), query.collect(Collectors.toList()));
+        }
+    }
+
+    @Test
+    public void testCounts() {
+        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into test (b) values (?)")) {
+            int[] counts = batch
+                .with(2).newBatch()
+                .with(3).newBatch()
+                .with(4).newBatch()
+                .counts();
+
+            Assert.assertArrayEquals(new int[]{1, 1, 1}, counts);
         }
 
         try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {

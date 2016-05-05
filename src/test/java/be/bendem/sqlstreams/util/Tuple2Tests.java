@@ -18,6 +18,13 @@ import static org.junit.Assert.assertTrue;
 public class Tuple2Tests {
 
     @Test
+    public void testLeftRight() {
+        Tuple2<Integer, String> tuple = new Tuple2<>(3, "hi");
+        assertEquals(3, (int) tuple.left());
+        assertEquals("hi", tuple.right());
+    }
+
+    @Test
     public void testMap() {
         Tuple2<Integer, String> tuple = new Tuple2<>(6, "hi");
         tuple = tuple.map(i -> i * 2, str -> str + " bob");
