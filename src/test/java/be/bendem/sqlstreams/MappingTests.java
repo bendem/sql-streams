@@ -3,9 +3,13 @@ package be.bendem.sqlstreams;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.DriverManager;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,6 +93,34 @@ public class MappingTests {
             Assert.assertEquals(1, users.size());
             Assert.assertEquals("x@x.com", users.get(0).email);
             Assert.assertEquals("bcrypted password", users.get(0).password);
+        }
+    }
+
+    static class DatesAndTimes {
+        private final LocalTime time;
+        private final LocalDate date;
+        private final LocalDateTime datetime;
+
+        public DatesAndTimes(LocalTime time, LocalDate date, LocalDateTime datetime) {
+            this.time = time;
+            this.date = date;
+            this.datetime = datetime;
+        }
+    }
+    @Test
+    @Ignore // https://github.com/xerial/sqlite-jdbc/issues/88
+    public void testJava8TimeMapping() {
+        try (Stream<DatesAndTimes> stream = sql.query("select "
+                + "time('13:14:15'), "
+                + "date('2016-11-13'), "
+                + "datetime('2016-11-13 13:14:15')", DatesAndTimes.class)) {
+            DatesAndTimes output = stream.findFirst().get();
+
+            LocalTime date = LocalTime.of(13, 14, 15);
+            LocalDate time = LocalDate.of(2016, 11, 13);
+            Assert.assertEquals(date, output.time);
+            Assert.assertEquals(time, output.date);
+            Assert.assertEquals(LocalDateTime.of(time, date), output.datetime);
         }
     }
 
