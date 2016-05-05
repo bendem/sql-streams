@@ -99,8 +99,8 @@ public abstract class BaseTests {
     @After
     public void cleanup() throws Exception {
         sql.execute("drop table test");
-        sql.execute("drop table users");
         sql.execute("drop table posts");
+        sql.execute("drop table users");
         sql.close();
     }
 
