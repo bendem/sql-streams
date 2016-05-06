@@ -10,6 +10,8 @@ import java.sql.SQLException;
  */
 public final class Wrap {
 
+    private Wrap() {}
+
     /**
      * Executes a possibly throwing code, wrapping any {@code SQLException} into
      * a {@code UncheckedSqlException}.
@@ -30,6 +32,7 @@ public final class Wrap {
      * SQLException} into a {@code UncheckedSqlException}.
      *
      * @param supplier the action to execute
+     * @param <T> the type of the object returned
      * @return the object returned by the supplier
      * @throws UncheckedSqlException if an {@code SQLException} was thrown
      */
