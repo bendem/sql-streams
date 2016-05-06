@@ -20,7 +20,7 @@ class BatchUpdateImpl extends ParameterProviderImpl<PreparedBatchUpdate, Prepare
     }
 
     @Override
-    public PreparedBatchUpdate newBatch() {
+    public PreparedBatchUpdate endBatch() {
         Wrap.execute(statement::addBatch);
         return this;
     }

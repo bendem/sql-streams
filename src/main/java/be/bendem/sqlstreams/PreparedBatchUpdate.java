@@ -4,7 +4,18 @@ import java.sql.PreparedStatement;
 
 public interface PreparedBatchUpdate extends ParameterProvider<PreparedBatchUpdate, PreparedStatement> {
 
-    PreparedBatchUpdate newBatch();
+    /**
+     * Ends the current batch of parameters.
+     * <p>
+     * Calling this method before providing data will generally cause an exception.
+     * <p>
+     * Not calling this method after your last batch of parameters will cause them
+     * to be ignored.
+     *
+     * @return {code this} for chaining
+     * @see PreparedStatement#addBatch()
+     */
+    PreparedBatchUpdate endBatch();
 
     /**
      * Executes the query and return the amount of rows modified by this query.
