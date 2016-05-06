@@ -39,8 +39,9 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
     /**
      * Sets the designated parameter based on the type of the parameter given.
      * <p>
-     * Supported parameters are java primitives, {@link String}, {@link Date}, {@link Time}
-     * and {@link Timestamp}.
+     * Supported parameters are java primitives, {@link String}, {@link Date}, {@link
+     * Time}, {@link Timestamp}, {@link java.time.LocalDate}, {@link java.time.LocalTime}
+     * and {@link java.time.LocalDateTime}.
      *
      * @param index the index of the parameter to set (starting from 1)
      * @param x the value to set

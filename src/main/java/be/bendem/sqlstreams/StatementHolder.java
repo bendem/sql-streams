@@ -30,6 +30,9 @@ public interface StatementHolder<Statement extends PreparedStatement> extends Au
         return Wrap.get(getStatement()::execute);
     }
 
+    /**
+     * Closes the statement held by this object.
+     */
     default void close() {
         Wrap.execute(getStatement()::close);
     }
