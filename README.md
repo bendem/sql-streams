@@ -39,5 +39,39 @@ try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into users (name
 }
 ```
 
+## Getting started
+
+Binaries for this library are not hosted anywhere yet. In the meantime you can compiling it yourself
+```sh
+git clone https://github.com/bendem/sql-streams
+cd sql-streams
+gradle build install
+```
+
+You can then add the dependency to your project
+```xml
+<dependency>
+    <groupId>be.bendem</groupId>
+    <artifactId>sql-streams</artifactId>
+    <version>[current version]</version>
+</dependency>
+```
+```groovy
+compile 'be.bendem:sql-streams:[current version]'
+```
+
+## Development
+
+You will need [gradle] to compile and install this library
+```
+gradle build install
+```
+
+In addition to the SQLite tests, you can run the postgresql tests using
+```sh
+PG_USER=test PG_PASSWORD=test PG_PORT=5432 gradle test
+```
+
 [ORM]: http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html
 [JDBC API]: https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/
+[gradle]: https://gradle.org/gradle-download/

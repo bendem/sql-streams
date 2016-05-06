@@ -19,6 +19,12 @@ dependencies {
     testCompile 'org.postgresql:postgresql:9.4.1208'
 }
 
+install {
+    repositories.mavenInstaller {
+        pom.artifactId = 'sql-streams'
+    }
+}
+
 javadoc {
     exclude '**/impl/*.java'
     options.encoding = 'UTF-8'
