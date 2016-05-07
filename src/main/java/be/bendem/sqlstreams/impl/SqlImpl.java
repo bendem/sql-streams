@@ -4,7 +4,9 @@ import be.bendem.sqlstreams.*;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Wrap;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -83,11 +85,20 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedExecute prepareExecute(String sql, Object... parameters) {
+    public PreparedExecute<PreparedStatement> prepareExecute(String sql, Object... parameters) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
             connection,
             Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            closeConnectionAfterAction());
+    }
+
+    @Override
+    public PreparedExecute<CallableStatement> prepareCall(String sql, Object... parameters) {
+        Connection connection = getConnection();
+        return new ExecuteImpl<>(
+            connection,
+            Wrap.get(() -> SqlBindings.map(connection.prepareCall(sql), parameters, 0)),
             closeConnectionAfterAction());
     }
 

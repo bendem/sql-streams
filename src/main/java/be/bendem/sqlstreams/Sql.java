@@ -7,7 +7,9 @@ import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.SqlSupplier;
 import be.bendem.sqlstreams.util.Tuple2;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.stream.Stream;
 
@@ -51,8 +53,6 @@ public interface Sql extends AutoCloseable {
     static Sql connect(DataSource dataSource) {
         return new SqlImpl(dataSource);
     }
-
-    // TODO Add all methods overloads for prepareCall
 
     /**
      * Opens a new transaction bound to a single connection.
@@ -103,13 +103,25 @@ public interface Sql extends AutoCloseable {
     /**
      * Prepares a query and provides it the given parameters.
      * <p>
-     * Note that this method is not executed until you call {@link PreparedExecute#execute()}
+     * Note that this method is not executed until you call {@link PreparedExecute#execute()}.
      *
      * @param sql the sql query
      * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and execute the query
      */
-    PreparedExecute prepareExecute(String sql, Object... parameters);
+    PreparedExecute<PreparedStatement> prepareExecute(String sql, Object... parameters);
+
+    /**
+     * Prepares a call and provides it the given parameters.
+     * <p>
+     * Note that this method is not executed until you call {@link PreparedExecute#execute()}.
+     *
+     * @param sql the sql query
+     * @param parameters parameters to apply in order to the provided query
+     * @return an object to parametrize the statement and execute the query
+     * @see Connection#prepareCall(String)
+     */
+    PreparedExecute<CallableStatement> prepareCall(String sql, Object... parameters);
 
     /**
      * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).map(mapping)}.
@@ -203,7 +215,7 @@ public interface Sql extends AutoCloseable {
      * @param parameters the parameters to pass
      */
     default void execute(String sql, Object... parameters) {
-        try (PreparedExecute execute = prepareExecute(sql, parameters)) {
+        try (PreparedExecute<PreparedStatement> execute = prepareExecute(sql, parameters)) {
             execute.execute();
         }
     }
