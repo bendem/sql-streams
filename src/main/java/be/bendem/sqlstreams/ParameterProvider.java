@@ -29,19 +29,20 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
 
     /**
      * Sets multiple parameters using magic bindings.
+     * <p>
+     * See <a href="package-summary.html#magic.mapping">here</a> for the types
+     * supported by this method.
      *
      * @param params parameters to set
      * @return {@code this} for chaining
-     * @see ParameterProvider#setMagic(int, Object)
      */
     Provider with(Object... params);
 
     /**
      * Sets the designated parameter based on the type of the parameter given.
      * <p>
-     * Supported parameters are java primitives, {@link String}, {@link Date}, {@link
-     * Time}, {@link Timestamp}, {@link java.time.LocalDate}, {@link java.time.LocalTime}
-     * and {@link java.time.LocalDateTime}.
+     * See <a href="package-summary.html#magic.mapping">here</a> for the types
+     * supported by this method.
      *
      * @param index the index of the parameter to set (starting from 1)
      * @param x the value to set
