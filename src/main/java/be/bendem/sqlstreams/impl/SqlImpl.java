@@ -1,6 +1,11 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.*;
+import be.bendem.sqlstreams.PreparedBatchUpdate;
+import be.bendem.sqlstreams.PreparedExecute;
+import be.bendem.sqlstreams.PreparedQuery;
+import be.bendem.sqlstreams.PreparedUpdate;
+import be.bendem.sqlstreams.Sql;
+import be.bendem.sqlstreams.Transaction;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Wrap;
 
@@ -8,7 +13,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.Spliterator;
@@ -107,15 +111,13 @@ public class SqlImpl implements Sql {
             .stream(new Spliterator<T>() {
                 @Override
                 public boolean tryAdvance(Consumer<? super T> consumer) {
-                    try {
-                        if (resultSet.next()) {
+                    return Wrap.get(() -> {
+                        boolean hasNext;
+                        if (hasNext = resultSet.next()) {
                             consumer.accept(mapping.apply(resultSet));
-                            return true;
                         }
-                    } catch (SQLException e) {
-                        throw new UncheckedSqlException(e);
-                    }
-                    return false;
+                        return hasNext;
+                    });
                 }
 
                 @Override
