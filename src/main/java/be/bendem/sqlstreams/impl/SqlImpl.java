@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -108,7 +109,7 @@ public class SqlImpl implements Sql {
 
     static <T> Stream<T> streamFromResultSet(SqlFunction<ResultSet, T> mapping, ResultSet resultSet) {
         return StreamSupport
-            .stream(new Spliterator<T>() {
+            .stream(new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
                 @Override
                 public boolean tryAdvance(Consumer<? super T> consumer) {
                     return Wrap.get(() -> {
@@ -118,23 +119,6 @@ public class SqlImpl implements Sql {
                         }
                         return hasNext;
                     });
-                }
-
-                @Override
-                public Spliterator<T> trySplit() {
-                    // Not supported
-                    return null;
-                }
-
-                @Override
-                public long estimateSize() {
-                    // Not supported
-                    return Long.MAX_VALUE;
-                }
-
-                @Override
-                public int characteristics() {
-                    return ORDERED;
                 }
             }, false)
             .onClose(() -> Wrap.execute(resultSet::close));
