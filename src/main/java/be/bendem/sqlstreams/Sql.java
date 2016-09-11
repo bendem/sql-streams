@@ -11,6 +11,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
@@ -122,6 +123,38 @@ public interface Sql extends AutoCloseable {
      * @see Connection#prepareCall(String)
      */
     PreparedExecute<CallableStatement> prepareCall(String sql, Object... parameters);
+
+    /**
+     * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).first(mapping)}.
+     *
+     * @param sql the sql query
+     * @param mapping a function to map each row to an object
+     * @param <R> the type of the elements of the returned stream
+     * @return a stream of elements mapped from the result set
+     * @see #prepareQuery(String, Object...)
+     * @see PreparedQuery#first(SqlFunction)
+     */
+    default <R> Optional<R> first(String sql, SqlFunction<ResultSet, R> mapping) {
+        try (PreparedQuery query = prepareQuery(sql)) {
+            return query.first(mapping);
+        }
+    }
+
+    /**
+     * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).first(clazz)}.
+     *
+     * @param sql the sql query
+     * @param clazz a function to map each row to an object
+     * @param <R> the type of the elements of the returned stream
+     * @return a stream of elements mapped from the result set
+     * @see #prepareQuery(String, Object...)
+     * @see PreparedQuery#first(Class)
+     */
+    default <R> Optional<R> first(String sql, Class<R> clazz) {
+        try (PreparedQuery query = prepareQuery(sql)) {
+            return query.first(clazz);
+        }
+    }
 
     /**
      * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).map(mapping)}.

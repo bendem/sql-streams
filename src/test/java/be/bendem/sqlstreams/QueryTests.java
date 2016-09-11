@@ -50,4 +50,10 @@ public class QueryTests extends BaseTests {
         }
     }
 
+    @Test
+    public void testFirstResult() {
+        Assert.assertFalse(sql.first("select * from test", rs -> 1).isPresent());
+        Assert.assertTrue(sql.first("select * from users", rs -> 1).isPresent());
+    }
+
 }
