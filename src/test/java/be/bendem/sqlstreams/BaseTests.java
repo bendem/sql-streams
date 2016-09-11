@@ -110,32 +110,11 @@ public abstract class BaseTests {
         String password;
         boolean activated;
 
-        public User(int id, String name, String password) {
-            this(id, name, password, false);
-        }
-
-        @MappingConstructor
         public User(int id, String name, String password, boolean activated) {
             this.id = id;
             this.name = name;
             this.password = password.trim();
             this.activated = activated;
-        }
-
-        public boolean isActivated() {
-            return activated;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getPassword() {
-            return password;
         }
 
         @Override

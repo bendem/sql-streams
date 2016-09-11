@@ -46,33 +46,6 @@
  * java.lang.String}, {@link java.sql.Date}, {@link java.sql.Time}, {@link
  * java.sql.Timestamp}, {@link java.time.LocalDate}, {@link java.time.LocalTime} and
  * {@link java.time.LocalDateTime}.
- * <p>
- * {@link be.bendem.sqlstreams.PreparedQuery#mapTo(java.lang.Class)} allows you to map
- * a result set to a class. That class needs to either:<ul>
- *     <li>
- *         Have a single constructor with only parameters supported by magic mapping
- *         as described above.
- *     </li>
- *     <li>
- *         Have a single constructor marked with the {@link
- *         be.bendem.sqlstreams.MappingConstructor} annotation and parameters supported
- *         by magic mapping as described above.
- *     </li>
- * </ul>
- * The values will be applied to the constructor in the order they are found in the
- * result set (using {@link java.sql.ResultSet#getString(int)} or equivalent with the
- * index of the constructor parameter).
- *
- * <h3>Auto-magic mapping with columns</h3>
- * If your query does not provide parameters in the correct order or provides more data
- * then needed by the constructor, you can use {@link
- * be.bendem.sqlstreams.PreparedQuery#mapTo(java.lang.Class, int...)} or {@link
- * be.bendem.sqlstreams.PreparedQuery#mapTo(java.lang.Class, java.lang.String...)} to
- * specify the indexes or names of the columns to use as constructor parameters.
- * <p>
- * Note that this mapping method will ignore the {@link
- * be.bendem.sqlstreams.MappingConstructor} annotation and try to find a constructor
- * with the matching number of arguments.
  *
  * <h3>Manual mapping</h3>
  * If you need a more complex mapping method, you can use {@link
@@ -80,8 +53,7 @@
  * each row of the result set using your own code.
  *
  * <h3>Materializing a join query as a Stream of tuples</h3>
- * {@link be.bendem.sqlstreams.PreparedQuery#mapJoining(java.lang.Class, java.lang.Class)}
- * and {@link be.bendem.sqlstreams.PreparedQuery#mapJoining(be.bendem.sqlstreams.util.SqlFunction)}
- * provide a way to materialize a join query.
+ * {@link be.bendem.sqlstreams.PreparedQuery#mapJoining(be.bendem.sqlstreams.util.SqlFunction)}
+ * provides a way to materialize a join query.
  */
 package be.bendem.sqlstreams;

@@ -141,22 +141,6 @@ public interface Sql extends AutoCloseable {
     }
 
     /**
-     * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).first(clazz)}.
-     *
-     * @param sql the sql query
-     * @param clazz a function to map each row to an object
-     * @param <R> the type of the elements of the returned stream
-     * @return a stream of elements mapped from the result set
-     * @see #prepareQuery(String, Object...)
-     * @see PreparedQuery#first(Class)
-     */
-    default <R> Optional<R> first(String sql, Class<R> clazz) {
-        try (PreparedQuery query = prepareQuery(sql)) {
-            return query.first(clazz);
-        }
-    }
-
-    /**
      * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).map(mapping)}.
      *
      * @param sql the sql query
@@ -171,18 +155,6 @@ public interface Sql extends AutoCloseable {
     }
 
     /**
-     * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).mapTo(clazz)}.
-     *
-     * @param sql the sql query
-     * @param clazz the class to map each row to
-     * @param <R> the type of the elements of the returned stream
-     * @return a stream of elements mapped from the result set
-     */
-    default <R> Stream<R> query(String sql, Class<R> clazz) {
-        return prepareQuery(sql).mapTo(clazz);
-    }
-
-    /**
      * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).mapJoining(mapping)}.
      *
      * @param sql the sql query
@@ -193,20 +165,6 @@ public interface Sql extends AutoCloseable {
      */
     default <Left, Right> Stream<Tuple2<Left, Right>> join(String sql, SqlFunction<ResultSet, Tuple2<Left, Right>> mapping) {
         return prepareQuery(sql).mapJoining(mapping);
-    }
-
-    /**
-     * Shortcut for {@link #prepareQuery(String, Object...) prepareQuery(sql).mapJoining(left, right)}.
-     *
-     * @param sql the sql query
-     * @param left the class to use to map the left of the join
-     * @param right the class to use to map the right of the join
-     * @param <Left> the type of the objects to map to the first table
-     * @param <Right> the type of the objects to map to the second table
-     * @return a stream of tuples
-     */
-    default <Left, Right> Stream<Tuple2<Left, Right>> join(String sql, Class<Left> left, Class<Right> right) {
-        return prepareQuery(sql).mapJoining(left, right);
     }
 
     /**

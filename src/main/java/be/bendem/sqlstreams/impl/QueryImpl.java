@@ -27,26 +27,6 @@ class QueryImpl extends ParameterProviderImpl<PreparedQuery, PreparedStatement> 
     }
 
     @Override
-    public <Left, Right> Stream<Tuple2<Left, Right>> mapJoining(Class<Left> leftClass, Class<Right> rightClass) {
-        return map(rs -> ClassMapping.combine(rs, ClassMapping.get(leftClass), ClassMapping.get(rightClass)));
-    }
-
-    @Override
-    public <R> Stream<R> mapTo(Class<R> clazz) {
-        return map(ClassMapping.get(clazz));
-    }
-
-    @Override
-    public <R> Stream<R> mapTo(Class<R> clazz, String... names) {
-        return map(ColumnNamesClassMapping.get(clazz, names));
-    }
-
-    @Override
-    public <R> Stream<R> mapTo(Class<R> clazz, int... columns) {
-        return map(ColumnClassMapping.get(clazz, columns));
-    }
-
-    @Override
     public <R> Stream<R> map(SqlFunction<ResultSet, R> mapping) {
         return SqlImpl.streamFromResultSet(mapping, Wrap.get(statement::executeQuery))
             .onClose(this::close);
