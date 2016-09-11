@@ -220,4 +220,6 @@ public interface Sql extends AutoCloseable {
         }
     }
 
+    void close();
+
 }
