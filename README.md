@@ -9,8 +9,8 @@ Why getting data in and out of the JDBC API was so verbose?
 What if you could query and map to a class easily?
 
 ```java
-try (Stream<User> users = sql.query("select * from users where added < current_date").mapTo(User.class)) {
-    // Use your users stream \o/
+try (Stream<User> users = sql.query("select * from users where added < current_date", rs -> rs.getString("username"))) {
+    // Use your username stream \o/
 }
 ```
 
@@ -41,7 +41,7 @@ try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into users (name
 
 ## Getting started
 
-Binaries for this library are not hosted anywhere yet. In the meantime you can compiling it yourself
+Binaries for this library are not hosted anywhere yet. In the meantime you can compile it yourself
 ```sh
 git clone https://github.com/bendem/sql-streams
 cd sql-streams
@@ -63,7 +63,7 @@ compile 'be.bendem:sql-streams:[current version]'
 ## Development
 
 You will need [gradle] to compile and install this library
-```
+```sh
 gradle build install
 ```
 
