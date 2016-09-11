@@ -13,7 +13,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-final class SqlBindings {
+/**
+ * Provides type based bindings for {@link ResultSet} and {@link PreparedStatement}
+ * parameters.
+ * <p>
+ * Note that this class is not part of the public API of this library and as such, is
+ * not required to stay compatible between versions.
+ * @see ParameterProviderImpl#with(Object...)
+ * @see ParameterProviderImpl#setMagic(int, Object)
+ */
+public final class SqlBindings {
 
     private SqlBindings() {}
 
@@ -83,14 +92,14 @@ final class SqlBindings {
         toWithIndex.put(clazz, toBindingWithIndex);
     }
 
-    static <Statement extends PreparedStatement> Statement map(Statement stmt, Object[] params, int offset) throws SQLException {
+    public static <Statement extends PreparedStatement> Statement map(Statement stmt, Object[] params, int offset) throws SQLException {
         for (int i = 0; i < params.length; ++i) {
             map(stmt, i + offset + 1, params[i]);
         }
         return stmt;
     }
 
-    static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
+    public static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
         @SuppressWarnings("unchecked")
         ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) TO_SQL_WITH_INDEX.get(value.getClass());
         if (toSqlBinding == null) {
@@ -99,7 +108,7 @@ final class SqlBindings {
         toSqlBinding.bind(stmt, index, value);
     }
 
-    static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
+    public static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) FROM_SQL_WITH_INDEX.get(clazz);
         if (fromSqlBinding == null) {
@@ -109,7 +118,7 @@ final class SqlBindings {
         return resultSet.wasNull() ? null : retrieved;
     }
 
-    static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
+    public static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) FROM_SQL_WITH_NAME.get(clazz);
         if (fromSqlBinding == null) {
@@ -119,7 +128,7 @@ final class SqlBindings {
         return resultSet.wasNull() ? null : retrieved;
     }
 
-    static <T> boolean supported(Class<T> clazz) {
+    public static <T> boolean supported(Class<T> clazz) {
         return FROM_SQL_WITH_INDEX.containsKey(clazz);
     }
 
