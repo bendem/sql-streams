@@ -16,8 +16,8 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
-    testCompile 'org.postgresql:postgresql:9.4.1208'
+    testCompile 'org.xerial:sqlite-jdbc:3.15.1'
+    testCompile 'org.postgresql:postgresql:9.4.1212'
 }
 
 install {
