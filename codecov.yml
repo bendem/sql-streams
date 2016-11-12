@@ -1,2 +1,5 @@
 coverage:
   range: "20...80"
+  status:
+    project: false
+    patch: false
