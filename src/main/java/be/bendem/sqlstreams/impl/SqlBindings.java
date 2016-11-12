@@ -102,7 +102,9 @@ public final class SqlBindings {
     public static <T> void map(PreparedStatement stmt, int index, T value) throws SQLException {
         @SuppressWarnings("unchecked")
         ToSqlBindingWithIndex<T> toSqlBinding = (ToSqlBindingWithIndex<T>) TO_SQL_WITH_INDEX.get(value.getClass());
-        if (toSqlBinding == null) {
+        if (value.getClass().isEnum()) {
+            toSqlBinding = (s, i, v) -> s.setInt(i, ((Enum<?>) v).ordinal());
+        } else if (toSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + value.getClass());
         }
         toSqlBinding.bind(stmt, index, value);
@@ -111,7 +113,9 @@ public final class SqlBindings {
     public static <T> T map(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithIndex<T> fromSqlBinding = (FromSqlBindingWithIndex<T>) FROM_SQL_WITH_INDEX.get(clazz);
-        if (fromSqlBinding == null) {
+        if (clazz.isEnum()) {
+            fromSqlBinding = (rs, i) -> clazz.getEnumConstants()[rs.getInt(i)];
+        } else if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
         T retrieved = fromSqlBinding.retrieve(resultSet, index);
@@ -121,7 +125,9 @@ public final class SqlBindings {
     public static <T> T map(ResultSet resultSet, String name, Class<T> clazz) throws SQLException {
         @SuppressWarnings("unchecked")
         FromSqlBindingWithName<T> fromSqlBinding = (FromSqlBindingWithName<T>) FROM_SQL_WITH_NAME.get(clazz);
-        if (fromSqlBinding == null) {
+        if (clazz.isEnum()) {
+            fromSqlBinding = (rs, n) -> clazz.getEnumConstants()[rs.getInt(n)];
+        } else if (fromSqlBinding == null) {
             throw new IllegalArgumentException("No binding for " + clazz);
         }
         T retrieved = fromSqlBinding.retrieve(resultSet, name);
