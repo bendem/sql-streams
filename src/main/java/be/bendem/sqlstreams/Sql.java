@@ -115,7 +115,7 @@ public interface Sql extends AutoCloseable {
      */
     BatchUpdate batchUpdate(String sql);
 
-    //PreparedUpdateAndGet prepareUpdateAndGet(String sql, Object... parameters);
+    UpdateReturning updateReturning(String sql);
 
     /**
      * Prepares a query and provides it the given parameters.

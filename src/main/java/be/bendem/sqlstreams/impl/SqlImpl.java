@@ -86,6 +86,15 @@ public class SqlImpl implements Sql {
     }
 
     @Override
+    public UpdateReturning updateReturning(String sql) {
+        Connection connection = getConnection();
+        return new UpdateReturningImpl(
+            connection,
+            Wrap.get(() -> connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)),
+            closeConnectionAfterAction());
+    }
+
+    @Override
     public Execute<PreparedStatement> execute(String sql, Object... parameters) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
