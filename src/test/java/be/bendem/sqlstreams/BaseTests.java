@@ -51,17 +51,17 @@ public abstract class BaseTests {
                 System.getenv("PG_PASSWORD")));
             sql = Sql.connect(connection);
 
-            sql.execute("create table test (" +
+            sql.exec("create table test (" +
                 "a serial primary key not null," +
                 "b integer" +
             ")");
-            sql.execute("create table users (" +
+            sql.exec("create table users (" +
                 "id serial primary key not null," +
                 "name varchar(255) unique not null," +
                 "password char(60) not null," +
                 "activated boolean default false not null" +
             ")");
-            sql.execute("create table posts (" +
+            sql.exec("create table posts (" +
                 "id serial primary key not null," +
                 "user_id integer references users (id)," +
                 "content text" +
@@ -69,17 +69,17 @@ public abstract class BaseTests {
             break;
         case SQLITE:
             sql = Wrap.get(() -> Sql.connect(DriverManager.getConnection("jdbc:sqlite:")));
-            sql.execute("create table test (" +
+            sql.exec("create table test (" +
                 "a integer primary key autoincrement not null," +
                 "b integer" +
             ")");
-            sql.execute("create table users (" +
+            sql.exec("create table users (" +
                 "id integer primary key autoincrement not null," +
                 "name varchar(255) unique not null," +
                 "password char(60) not null," +
                 "activated boolean default false not null" +
             ")");
-            sql.execute("create table posts (" +
+            sql.exec("create table posts (" +
                 "id integer primary key autoincrement not null," +
                 "user_id integer references users (id)," +
                 "content text" +
@@ -87,10 +87,10 @@ public abstract class BaseTests {
             break;
         }
 
-        sql.update("insert into users (name, password) values " +
+        sql.exec("insert into users (name, password) values " +
             "('bob', 'bob_password')," +
             "('georges', 'georges_password')");
-        sql.update("insert into posts (user_id, content) values " +
+        sql.exec("insert into posts (user_id, content) values " +
             "(1, 'whee')," +
             "(1, 'baah')," +
             "(2, 'bleh')");
@@ -98,9 +98,9 @@ public abstract class BaseTests {
 
     @After
     public void cleanup() throws Exception {
-        sql.execute("drop table test");
-        sql.execute("drop table posts");
-        sql.execute("drop table users");
+        sql.exec("drop table test");
+        sql.exec("drop table posts");
+        sql.exec("drop table users");
         sql.close();
     }
 

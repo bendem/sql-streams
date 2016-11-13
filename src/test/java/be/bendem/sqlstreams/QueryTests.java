@@ -11,23 +11,27 @@ public class QueryTests extends BaseTests {
 
     @Test
     public void testEmptySqlQuery() {
-        try (Stream<Integer> query = sql.query("select * from test", rs -> 0)) {
+        try (Stream<Integer> query = sql.query("select * from test").map(rs -> 0)) {
             Assert.assertEquals(0, query.count());
         }
     }
 
     @Test
     public void testInsertAndSqlQuery() {
-        Assert.assertEquals(1, sql.update("insert into test (b) values (1)"));
-        Assert.assertEquals(1, sql.update(INSERT_INTO_TEST, 2));
-        try (Update update = sql.update(INSERT_INTO_TEST)) {
-            Assert.assertEquals(1, update.setInt(1, 3).count());
+        try (Update update = sql.update("insert into test (b) values (1)")) {
+            Assert.assertEquals(1, update.count());
         }
-        try (Update update = sql.update(INSERT_INTO_TEST)) {
-            Assert.assertEquals(1, update.with(4).count());
+        try (Update update = sql.update(INSERT_INTO_TEST, 2)) {
+            Assert.assertEquals(1, update.count());
+        }
+        try (Update update = sql.update(INSERT_INTO_TEST).setInt(1, 3)) {
+            Assert.assertEquals(1, update.count());
+        }
+        try (Update update = sql.update(INSERT_INTO_TEST).with(4)) {
+            Assert.assertEquals(1, update.count());
         }
 
-        try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {
+        try (Stream<Integer> query = sql.query("select b from test order by 1").map(rs -> rs.getInt(1))) {
             Assert.assertEquals(Arrays.asList(1, 2, 3, 4), query.collect(Collectors.toList()));
         }
     }
@@ -43,8 +47,8 @@ public class QueryTests extends BaseTests {
 
         Assert.assertEquals(1, update.count());
         update.close();
-        try {
-            sql.update(INSERT_INTO_TEST, 1);
+        try (Update update2 = sql.update(INSERT_INTO_TEST, 1)) {
+            Assert.assertEquals(1, update2.count());
         } catch (IllegalStateException e) {
             Assert.fail(e.getMessage());
         }

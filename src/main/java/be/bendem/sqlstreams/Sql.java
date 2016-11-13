@@ -118,15 +118,14 @@ public interface Sql extends AutoCloseable {
     UpdateReturning updateReturning(String sql);
 
     /**
-     * Prepares a query and provides it the given parameters.
+     * Prepares a query.
      * <p>
      * Note that this method is not executed until you call {@link Execute#execute()}.
      *
      * @param sql the sql query
-     * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and execute the query
      */
-    Execute<PreparedStatement> execute(String sql, Object... parameters);
+    Execute<PreparedStatement> execute(String sql);
 
     /**
      * Prepares a call and provides it the given parameters.
@@ -167,6 +166,12 @@ public interface Sql extends AutoCloseable {
      */
     default <Left, Right> Stream<Tuple2<Left, Right>> join(String sql, SqlFunction<ResultSet, Tuple2<Left, Right>> mapping) {
         return query(sql).mapJoining(mapping);
+    }
+
+    default void exec(String sql, Object... parameters) {
+        try (Execute<PreparedStatement> execute = execute(sql).with(parameters)) {
+            execute.execute();
+        }
     }
 
     void close();

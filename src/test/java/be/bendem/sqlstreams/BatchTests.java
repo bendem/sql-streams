@@ -21,7 +21,7 @@ public class BatchTests extends BaseTests {
             Assert.assertEquals(3, count);
         }
 
-        try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {
+        try (Stream<Integer> query = sql.query("select b from test order by 1").map(rs -> rs.getInt(1))) {
             Assert.assertEquals(Arrays.asList(2, 3, 4), query.collect(Collectors.toList()));
         }
     }
@@ -38,7 +38,7 @@ public class BatchTests extends BaseTests {
             Assert.assertArrayEquals(new int[]{1, 1, 1}, counts);
         }
 
-        try (Stream<Integer> query = sql.query("select b from test order by 1", rs -> rs.getInt(1))) {
+        try (Stream<Integer> query = sql.query("select b from test order by 1").map(rs -> rs.getInt(1))) {
             Assert.assertEquals(Arrays.asList(2, 3, 4), query.collect(Collectors.toList()));
         }
     }
