@@ -1,10 +1,10 @@
 package be.bendem.sqlstreams;
 
-import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.impl.SqlImpl;
-import be.bendem.sqlstreams.util.SuppliedConnectionsDataSource;
+import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.SqlSupplier;
+import be.bendem.sqlstreams.util.SuppliedConnectionsDataSource;
 import be.bendem.sqlstreams.util.Tuple2;
 
 import java.sql.CallableStatement;
@@ -62,6 +62,12 @@ public interface Sql extends AutoCloseable {
      */
     Transaction transaction();
 
+    PreparedQuery prepareQuery(SqlFunction<Connection, PreparedStatement> preparer);
+
+    default PreparedQuery prepareQuery(String sql) {
+        return prepareQuery(conn -> conn.prepareStatement(sql));
+    }
+
     /**
      * Prepares a query to be executed and provides it the given parameters.
      * <p>
@@ -72,7 +78,15 @@ public interface Sql extends AutoCloseable {
      * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and map the query result
      */
-    PreparedQuery prepareQuery(String sql, Object... parameters);
+    default PreparedQuery prepareQuery(String sql, Object... parameters) {
+        return prepareQuery(sql).with(parameters);
+    }
+
+    PreparedUpdate prepareUpdate(SqlFunction<Connection, PreparedStatement> preparer);
+
+    default PreparedUpdate prepareUpdate(String sql) {
+        return prepareUpdate(conn -> conn.prepareStatement(sql));
+    }
 
     /**
      * Prepares a DML sql statement and provides it the given parameters.
@@ -85,7 +99,9 @@ public interface Sql extends AutoCloseable {
      * @return an object to parametrize the statement and retrieve the number
      *         of rows affected by this query
      */
-    PreparedUpdate prepareUpdate(String sql, Object... parameters);
+    default PreparedUpdate prepareUpdate(String sql, Object... parameters) {
+        return prepareUpdate(sql).with(parameters);
+    }
 
     /**
      * Prepares a DML statement to provide it multiple batches of parameters.

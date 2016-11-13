@@ -59,20 +59,20 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedQuery prepareQuery(String sql, Object... parameters) {
+    public PreparedQuery prepareQuery(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return new QueryImpl(
             connection,
-            Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            Wrap.get(() -> preparer.apply(connection)),
             closeConnectionAfterAction());
     }
 
     @Override
-    public PreparedUpdate prepareUpdate(String sql, Object... parameters) {
+    public PreparedUpdate prepareUpdate(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return  new UpdateImpl(
             connection,
-            Wrap.get(() -> SqlBindings.map(connection.prepareStatement(sql), parameters, 0)),
+            Wrap.get(() -> preparer.apply(connection)),
             closeConnectionAfterAction());
     }
 
