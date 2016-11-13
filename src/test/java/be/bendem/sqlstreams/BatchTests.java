@@ -11,7 +11,7 @@ public class BatchTests extends BaseTests {
 
     @Test
     public void testCount() {
-        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate(INSERT_INTO_TEST)) {
+        try (BatchUpdate batch = sql.batchUpdate(INSERT_INTO_TEST)) {
             int count = batch
                 .with(2).endBatch()
                 .with(3).endBatch()
@@ -28,7 +28,7 @@ public class BatchTests extends BaseTests {
 
     @Test
     public void testCounts() {
-        try (PreparedBatchUpdate batch = sql.prepareBatchUpdate(INSERT_INTO_TEST)) {
+        try (BatchUpdate batch = sql.batchUpdate(INSERT_INTO_TEST)) {
             int[] counts = batch
                 .with(2).endBatch()
                 .with(3).endBatch()

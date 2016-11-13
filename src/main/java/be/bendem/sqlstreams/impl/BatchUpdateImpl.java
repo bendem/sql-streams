@@ -1,6 +1,6 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.PreparedBatchUpdate;
+import be.bendem.sqlstreams.BatchUpdate;
 import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-class BatchUpdateImpl extends ParameterProviderImpl<PreparedBatchUpdate, PreparedStatement> implements PreparedBatchUpdate {
+class BatchUpdateImpl extends ParameterProviderImpl<BatchUpdate, PreparedStatement> implements BatchUpdate {
 
     private final Connection connection;
     private final boolean closeConnection;
@@ -20,7 +20,7 @@ class BatchUpdateImpl extends ParameterProviderImpl<PreparedBatchUpdate, Prepare
     }
 
     @Override
-    public PreparedBatchUpdate endBatch() {
+    public BatchUpdate endBatch() {
         Wrap.execute(statement::addBatch);
         return this;
     }

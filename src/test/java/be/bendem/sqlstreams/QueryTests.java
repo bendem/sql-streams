@@ -20,10 +20,10 @@ public class QueryTests extends BaseTests {
     public void testInsertAndSqlQuery() {
         Assert.assertEquals(1, sql.update("insert into test (b) values (1)"));
         Assert.assertEquals(1, sql.update(INSERT_INTO_TEST, 2));
-        try (PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST)) {
+        try (Update update = sql.update(INSERT_INTO_TEST)) {
             Assert.assertEquals(1, update.setInt(1, 3).count());
         }
-        try (PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST)) {
+        try (Update update = sql.update(INSERT_INTO_TEST)) {
             Assert.assertEquals(1, update.with(4).count());
         }
 
@@ -34,7 +34,7 @@ public class QueryTests extends BaseTests {
 
     @Test
     public void testSingleConnectionDataSource() {
-        PreparedUpdate update = sql.prepareUpdate(INSERT_INTO_TEST, 1);
+        Update update = sql.update(INSERT_INTO_TEST, 1);
 
         try {
             sql.update("");

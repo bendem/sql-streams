@@ -59,7 +59,7 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedQuery prepareQuery(SqlFunction<Connection, PreparedStatement> preparer) {
+    public Query query(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return new QueryImpl(
             connection,
@@ -68,7 +68,7 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedUpdate prepareUpdate(SqlFunction<Connection, PreparedStatement> preparer) {
+    public Update update(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return  new UpdateImpl(
             connection,
@@ -77,7 +77,7 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedBatchUpdate prepareBatchUpdate(String sql) {
+    public BatchUpdate batchUpdate(String sql) {
         Connection connection = getConnection();
         return new BatchUpdateImpl(
             connection,
@@ -86,7 +86,7 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedExecute<PreparedStatement> prepareExecute(String sql, Object... parameters) {
+    public Execute<PreparedStatement> execute(String sql, Object... parameters) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
             connection,
@@ -95,7 +95,7 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public PreparedExecute<CallableStatement> prepareCall(String sql, Object... parameters) {
+    public Execute<CallableStatement> call(String sql, Object... parameters) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
             connection,

@@ -1,12 +1,12 @@
 package be.bendem.sqlstreams.impl;
 
-import be.bendem.sqlstreams.PreparedUpdate;
+import be.bendem.sqlstreams.Update;
 import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-class UpdateImpl extends ParameterProviderImpl<PreparedUpdate, PreparedStatement> implements PreparedUpdate {
+class UpdateImpl extends ParameterProviderImpl<Update, PreparedStatement> implements Update {
 
     private final Connection connection;
     private final boolean closeConnection;

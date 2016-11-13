@@ -2,7 +2,7 @@ package be.bendem.sqlstreams;
 
 import java.sql.PreparedStatement;
 
-public interface PreparedBatchUpdate extends ParameterProvider<PreparedBatchUpdate, PreparedStatement> {
+public interface BatchUpdate extends ParameterProvider<BatchUpdate, PreparedStatement> {
 
     /**
      * Ends the current batch of parameters.
@@ -15,7 +15,7 @@ public interface PreparedBatchUpdate extends ParameterProvider<PreparedBatchUpda
      * @return {code this} for chaining
      * @see PreparedStatement#addBatch()
      */
-    PreparedBatchUpdate endBatch();
+    BatchUpdate endBatch();
 
     /**
      * Executes the query and return the amount of rows modified by this query.

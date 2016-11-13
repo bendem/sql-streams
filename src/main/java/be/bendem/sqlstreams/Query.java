@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface PreparedQuery extends ParameterProvider<PreparedQuery, PreparedStatement> {
+public interface Query extends ParameterProvider<Query, PreparedStatement> {
 
     /**
      * Returns the first row of the current query using the provided mapping function.

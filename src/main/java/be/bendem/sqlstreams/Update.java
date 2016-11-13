@@ -2,7 +2,7 @@ package be.bendem.sqlstreams;
 
 import java.sql.PreparedStatement;
 
-public interface PreparedUpdate extends ParameterProvider<PreparedUpdate, PreparedStatement>  {
+public interface Update extends ParameterProvider<Update, PreparedStatement>  {
 
     /**
      * Executes the query and return the amount of rows modified by this query.

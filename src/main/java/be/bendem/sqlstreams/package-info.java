@@ -21,7 +21,7 @@
  * implement {@link java.lang.AutoCloseable} (applies to {@link java.util.stream.Stream}s
  * as well). This is generally best done using the {@code try}-with-resources construct
  * as such:</strong>
- * <pre>{@code try (PreparedUpdate update = sql.prepareUpdate("update salaries set amount = amount * 2")) {
+ * <pre>{@code try (PreparedUpdate update = sql.update("update salaries set amount = amount * 2")) {
  *     // use update here
  * }}</pre>
  *
@@ -49,11 +49,11 @@
  *
  * <h3>Manual mapping</h3>
  * If you need a more complex mapping method, you can use {@link
- * be.bendem.sqlstreams.PreparedQuery#map(be.bendem.sqlstreams.util.SqlFunction)} to map
+ * be.bendem.sqlstreams.Query#map(be.bendem.sqlstreams.util.SqlFunction)} to map
  * each row of the result set using your own code.
  *
  * <h3>Materializing a join query as a Stream of tuples</h3>
- * {@link be.bendem.sqlstreams.PreparedQuery#mapJoining(be.bendem.sqlstreams.util.SqlFunction)}
+ * {@link be.bendem.sqlstreams.Query#mapJoining(be.bendem.sqlstreams.util.SqlFunction)}
  * provides a way to materialize a join query.
  */
 package be.bendem.sqlstreams;

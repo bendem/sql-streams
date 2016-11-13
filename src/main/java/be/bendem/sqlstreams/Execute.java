@@ -2,8 +2,8 @@ package be.bendem.sqlstreams;
 
 import java.sql.PreparedStatement;
 
-public interface PreparedExecute<Statement extends PreparedStatement>
-        extends ParameterProvider<PreparedExecute<Statement>, Statement> {
+public interface Execute<Statement extends PreparedStatement>
+        extends ParameterProvider<Execute<Statement>, Statement> {
 
     /**
      * Executes this statement.
