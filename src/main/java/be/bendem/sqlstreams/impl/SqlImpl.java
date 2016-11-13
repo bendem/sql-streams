@@ -45,20 +45,6 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public <R> Stream<R> query(String sql, SqlFunction<ResultSet, R> mapping) {
-        // TODO Benchmark it is actually worth it to use Statement over PreparedStatement
-        Connection connection = getConnection();
-        Statement statement = Wrap.get(connection::createStatement);
-        return streamFromResultSet(mapping, Wrap.get(() -> statement.executeQuery(sql)))
-            .onClose(() -> Wrap.execute(() -> {
-                statement.close();
-                if (closeConnectionAfterAction()) {
-                    connection.close();
-                }
-            }));
-    }
-
-    @Override
     public Query query(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return new QueryImpl(
