@@ -67,10 +67,19 @@ You will need [gradle] to compile and install this library
 gradle build install
 ```
 
-In addition to the SQLite tests, you can run the postgresql tests using
+In addition to the SQLite and H2 tests, you can run the PostgreSQL tests using
 ```sh
-PG_USER=test PG_PASSWORD=test PG_PORT=5432 gradle test
+PGUSER=test PGPASSWORD=test gradle test
+# or
+PGFORCE=true gradle test
 ```
+
+Environement variables checked for postgres tests:
++ `PGFORCE`: Forces the postgres tests to be executed
++ `PGUSER`: Connection user
++ `PGPASSWORD`: Connection password
++ `PGPORT`: Port of the database (default `5436`)
++ `PGDATABASE`: Name of the database (default `test`)
 
 [ORM]: http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html
 [JDBC API]: https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/

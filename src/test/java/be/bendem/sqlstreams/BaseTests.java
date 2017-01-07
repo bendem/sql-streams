@@ -19,16 +19,18 @@ public abstract class BaseTests {
     protected static final String INSERT_INTO_TEST = "insert into test (b) values (?)";
 
     protected enum Database {
-        SQLITE, POSTGRES
+        SQLITE, H2, POSTGRES
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         // Just cheating multi runs
         ArrayList<Object[]> data = new ArrayList<>();
         data.add(new Object[] { Database.SQLITE });
+        data.add(new Object[] { Database.H2 });
 
-        if (System.getenv("PG_USER") != null && System.getenv("PG_PASSWORD") != null) {
+        if (System.getenv("PGFORCE") != null
+                || (System.getenv("PGUSER") != null && System.getenv("PGPASSWORD") != null)) {
             data.add(new Object[] { Database.POSTGRES });
         }
 
@@ -43,12 +45,13 @@ public abstract class BaseTests {
     @Before
     public void setup() {
         switch (database) {
-        case POSTGRES:
-            String port = Optional.ofNullable(System.getenv("PG_PORT")).orElse("5435");
+        case POSTGRES: {
+            String port = Optional.ofNullable(System.getenv("PGPORT")).orElse("5436");
+            String database = Optional.ofNullable(System.getenv("PGDATABASE")).orElse("test");
             Connection connection = Wrap.get(() -> DriverManager.getConnection(
-                "jdbc:postgresql://localhost:" + port + "/test",
-                System.getenv("PG_USER"),
-                System.getenv("PG_PASSWORD")));
+                "jdbc:postgresql://localhost:" + port + "/" + database,
+                System.getenv("PGUSER"),
+                System.getenv("PGPASSWORD")));
             sql = Sql.connect(connection);
 
             sql.exec("create table test (" +
@@ -61,6 +64,27 @@ public abstract class BaseTests {
                 "password char(60) not null," +
                 "activated boolean default false not null" +
             ")");
+            sql.exec("create table posts (" +
+                "id serial primary key not null," +
+                "user_id integer references users (id)," +
+                "content text" +
+            ")");
+            break;
+        }
+        case H2:
+            Connection connection = Wrap.get(() -> DriverManager.getConnection("jdbc:h2:mem:test"));
+            sql = Sql.connect(connection);
+
+            sql.exec("create table test (" +
+                "a serial primary key not null," +
+                "b integer" +
+            ")");
+            sql.exec("create table users (" +
+                "id serial primary key not null," +
+                "name varchar(255) unique not null," +
+                "password char(60) not null," +
+                "activated boolean default false not null" +
+                ")");
             sql.exec("create table posts (" +
                 "id serial primary key not null," +
                 "user_id integer references users (id)," +
