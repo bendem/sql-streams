@@ -8,6 +8,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Wraps a single connection that is reused each time {@link #getConnection()} is called.
+ *
+ * Note that closing the connection you got using {@link #getConnection()} will make it available again. If it is not
+ * closed, calling {@link #getConnection()} will throw an {@link IllegalStateException}.
+ *
+ * To actually close the connection, call {@link #close()} on this DataSource.
+ */
 public class SingleConnectionDataSource extends DummyDataSource implements AutoCloseable {
 
     private final AtomicBoolean inUse;
