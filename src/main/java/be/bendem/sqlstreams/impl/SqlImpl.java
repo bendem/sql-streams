@@ -4,20 +4,14 @@ import be.bendem.sqlstreams.*;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Wrap;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import javax.sql.DataSource;
 
 public class SqlImpl implements Sql {
 
@@ -42,6 +36,11 @@ public class SqlImpl implements Sql {
     @Override
     public Transaction transaction() {
         return new TransactionImpl(getConnection());
+    }
+
+    @Override
+    public Transaction transaction(Transaction.IsolationLevel isolationLevel) {
+        return new TransactionImpl(getConnection(), isolationLevel.isolationLevel);
     }
 
     @Override

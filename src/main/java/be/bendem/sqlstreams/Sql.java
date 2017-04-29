@@ -59,6 +59,13 @@ public interface Sql extends AutoCloseable {
      */
     Transaction transaction();
 
+    /**
+     * Opens a new transaction bound to a single connection.
+     *
+     * @return the new transaction
+     */
+    Transaction transaction(Transaction.IsolationLevel isolationLevel);
+
     Query query(SqlFunction<Connection, PreparedStatement> preparer);
 
     default Query query(String sql) {
