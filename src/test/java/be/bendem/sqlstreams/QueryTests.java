@@ -21,7 +21,7 @@ public class QueryTests extends BaseTests {
         try (Update update = sql.update("insert into test (b) values (1)")) {
             Assert.assertEquals(1, update.count());
         }
-        try (Update update = sql.update(INSERT_INTO_TEST, 2)) {
+        try (Update update = sql.update(INSERT_INTO_TEST).with(2)) {
             Assert.assertEquals(1, update.count());
         }
         try (Update update = sql.update(INSERT_INTO_TEST).setInt(1, 3)) {
@@ -38,16 +38,16 @@ public class QueryTests extends BaseTests {
 
     @Test
     public void testSingleConnectionDataSource() {
-        Update update = sql.update(INSERT_INTO_TEST, 1);
+        Update update = sql.update(INSERT_INTO_TEST).with(1);
 
         try {
             sql.update("");
-            Assert.fail();
+            Assert.fail("connection should not be available");
         } catch (IllegalStateException expected) {}
 
         Assert.assertEquals(1, update.count());
         update.close();
-        try (Update update2 = sql.update(INSERT_INTO_TEST, 1)) {
+        try (Update update2 = sql.update(INSERT_INTO_TEST).with(1)) {
             Assert.assertEquals(1, update2.count());
         } catch (IllegalStateException e) {
             Assert.fail(e.getMessage());

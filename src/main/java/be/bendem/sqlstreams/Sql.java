@@ -70,45 +70,41 @@ public interface Sql extends AutoCloseable {
      */
     Transaction transaction(Transaction.IsolationLevel isolationLevel);
 
+    /**
+     * Manually prepares a query from a {@link Connection}.
+     *
+     * @param preparer the code creating a {@link PreparedStatement} from a {@link Connection}
+     * @return an object to parametrize the statement and map the query result
+     */
     Query query(SqlFunction<Connection, PreparedStatement> preparer);
 
-    default Query query(String sql) {
-        return query(conn -> conn.prepareStatement(sql));
-    }
-
     /**
-     * Prepares a query to be executed and provides it the given parameters.
+     * Prepares a query to be executed.
      * <p>
      * Note that the query is not actually executed until a mapping method
      * of {@link Query} is called.
      *
      * @param sql the sql query
-     * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and map the query result
      */
-    default Query query(String sql, Object... parameters) {
-        return query(sql).with(parameters);
+    default Query query(String sql) {
+        return query(conn -> conn.prepareStatement(sql));
     }
 
     Update update(SqlFunction<Connection, PreparedStatement> preparer);
 
-    default Update update(String sql) {
-        return update(conn -> conn.prepareStatement(sql));
-    }
-
     /**
-     * Prepares a DML sql statement and provides it the given parameters.
+     * Prepares a DML sql statement.
      * <p>
      * Not that the query is not actually executed until you invoke a
      * method from {@link Update}.
      *
      * @param sql the sql query
-     * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and retrieve the number
      *         of rows affected by this query
      */
-    default Update update(String sql, Object... parameters) {
-        return update(sql).with(parameters);
+    default Update update(String sql) {
+        return update(conn -> conn.prepareStatement(sql));
     }
 
     /**
@@ -141,20 +137,19 @@ public interface Sql extends AutoCloseable {
      * Note that this method is not executed until you call {@link Execute#execute()}.
      *
      * @param sql the sql query
-     * @param parameters parameters to apply in order to the provided query
      * @return an object to parametrize the statement and execute the query
      * @see Connection#prepareCall(String)
      */
-    Execute<CallableStatement> call(String sql, Object... parameters);
+    Execute<CallableStatement> call(String sql);
 
     /**
-     * Shortcut for {@link #query(String, Object...) query(sql).first(mapping)}.
+     * Shortcut for {@link #query(String) query(sql).first(mapping)}.
      *
      * @param sql the sql query
      * @param mapping a function to map each row to an object
      * @param <R> the type of the elements of the returned stream
      * @return a stream of elements mapped from the result set
-     * @see #query(String, Object...)
+     * @see #query(String)
      * @see Query#first(SqlFunction)
      */
     default <R> Optional<R> first(String sql, SqlFunction<ResultSet, R> mapping) {

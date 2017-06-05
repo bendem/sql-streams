@@ -89,11 +89,11 @@ public class SqlImpl implements Sql {
     }
 
     @Override
-    public Execute<CallableStatement> call(String sql, Object... parameters) {
+    public Execute<CallableStatement> call(String sql) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
             connection,
-            Wrap.get(() -> SqlBindings.map(connection.prepareCall(sql), parameters, 0)),
+            Wrap.get(() -> connection.prepareCall(sql)),
             closeConnectionAfterAction());
     }
 
