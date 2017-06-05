@@ -22,6 +22,11 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
     private final Connection connection;
     private final Connection proxy;
 
+    /**
+     * Creates a single single connection datasource.
+     *
+     * @param connection the underlying jdbc connection to use
+     */
     public SingleConnectionDataSource(Connection connection) {
         this.inUse = new AtomicBoolean(false);
         this.connection = connection;

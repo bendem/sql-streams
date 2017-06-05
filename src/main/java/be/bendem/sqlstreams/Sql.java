@@ -59,7 +59,8 @@ public interface Sql extends AutoCloseable {
     /**
      * Manually prepares a query from a {@link Connection}.
      *
-     * @param preparer the code creating a {@link PreparedStatement} from a {@link Connection}
+     * @param preparer the code creating a {@link PreparedStatement} from a
+     *                 {@link Connection}
      * @return an object to parametrize the statement and map the query result
      */
     Query query(SqlFunction<Connection, PreparedStatement> preparer);
@@ -77,6 +78,13 @@ public interface Sql extends AutoCloseable {
         return query(conn -> conn.prepareStatement(sql));
     }
 
+    /**
+     * Manually prepares a DML query from a {@link Connection}.
+     *
+     * @param preparer the code creating a {@link PreparedStatement} from a
+     *                 {@link Connection}
+     * @return an object to parametrize and execute the DML statement
+     */
     Update update(SqlFunction<Connection, PreparedStatement> preparer);
 
     /**
@@ -105,6 +113,14 @@ public interface Sql extends AutoCloseable {
      */
     BatchUpdate batchUpdate(String sql);
 
+    /**
+     * Prepares a DML statement using {@link Connection#prepareStatement(String,
+     * int) prepareStatement(String, Statement.RETURN_GENERATED_KEYS)}.
+     *
+     * @param sql the sql query
+     * @return an object to parametrize the statement and retrieve counts
+     *         of affected rows
+     */
     UpdateReturning updateReturning(String sql);
 
     /**
@@ -145,12 +161,21 @@ public interface Sql extends AutoCloseable {
         }
     }
 
+    /**
+     * Shortcut for {@link #execute(String) execute(sql).with(parameters).execute()}.
+     *
+     * @param sql the sql query
+     * @param parameters parameters to apply in order to the provided query
+     */
     default void exec(String sql, Object... parameters) {
         try (Execute<PreparedStatement> execute = execute(sql).with(parameters)) {
             execute.execute();
         }
     }
 
+    /**
+     * Closes the underlying {@link DataSource}.
+     */
     void close();
 
 }
