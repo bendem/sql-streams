@@ -20,7 +20,7 @@ import java.util.Map;
  * Note that this class is not part of the public API of this library and as such, is
  * not required to stay compatible between versions.
  * @see ParameterProviderImpl#with(Object...)
- * @see ParameterProviderImpl#setMagic(int, Object)
+ * @see ParameterProviderImpl#set(int, Object)
  */
 public final class SqlBindings {
 

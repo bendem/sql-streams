@@ -40,7 +40,7 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
     }
 
     @Override
-    public Provider setMagic(int index, Object x) {
+    public Provider set(int index, Object x) {
         Wrap.execute(() -> SqlBindings.map(statement, index, Objects.requireNonNull(x)));
         return (Provider) this;
     }

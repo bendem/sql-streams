@@ -49,7 +49,7 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
      * @return {@code this} for chaining
      * @throws NullPointerException if {@code x} is {@code null}
      */
-    Provider setMagic(int index, Object x);
+    Provider set(int index, Object x);
 
     /**
      * Sets the designated parameter to the given {@link Array}.

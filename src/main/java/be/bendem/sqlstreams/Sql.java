@@ -1,7 +1,10 @@
 package be.bendem.sqlstreams;
 
 import be.bendem.sqlstreams.impl.SqlImpl;
-import be.bendem.sqlstreams.util.*;
+import be.bendem.sqlstreams.util.SingleConnectionDataSource;
+import be.bendem.sqlstreams.util.SqlFunction;
+import be.bendem.sqlstreams.util.SqlSupplier;
+import be.bendem.sqlstreams.util.SuppliedConnectionsDataSource;
 
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
@@ -9,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * This class is the main entry point from this library. It provides static
