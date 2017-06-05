@@ -159,19 +159,6 @@ public interface Sql extends AutoCloseable {
         }
     }
 
-    /**
-     * Shortcut for {@link #query(String, Object...) query(sql).mapJoining(mapping)}.
-     *
-     * @param sql the sql query
-     * @param mapping a function to map each row to a tuple
-     * @param <Left> the type of the objects to map to the first table
-     * @param <Right> the type of the objects to map to the second table
-     * @return a stream of tuples
-     */
-    default <Left, Right> Stream<Tuple2<Left, Right>> join(String sql, SqlFunction<ResultSet, Tuple2<Left, Right>> mapping) {
-        return query(sql).mapJoining(mapping);
-    }
-
     default void exec(String sql, Object... parameters) {
         try (Execute<PreparedStatement> execute = execute(sql).with(parameters)) {
             execute.execute();

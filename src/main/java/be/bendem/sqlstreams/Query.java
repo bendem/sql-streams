@@ -1,7 +1,6 @@
 package be.bendem.sqlstreams;
 
 import be.bendem.sqlstreams.util.SqlFunction;
-import be.bendem.sqlstreams.util.Tuple2;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +32,5 @@ public interface Query extends ParameterProvider<Query, PreparedStatement> {
      * @return a lazily populated stream of each element returned by the query
      */
     <R> Stream<R> map(SqlFunction<ResultSet, R> mapping);
-
-    <Left, Right> Stream<Tuple2<Left, Right>> mapJoining(SqlFunction<ResultSet, Tuple2<Left, Right>> mapping);
 
 }

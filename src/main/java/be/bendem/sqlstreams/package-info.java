@@ -51,9 +51,5 @@
  * If you need a more complex mapping method, you can use {@link
  * be.bendem.sqlstreams.Query#map(be.bendem.sqlstreams.util.SqlFunction)} to map
  * each row of the result set using your own code.
- *
- * <h3>Materializing a join query as a Stream of tuples</h3>
- * {@link be.bendem.sqlstreams.Query#mapJoining(be.bendem.sqlstreams.util.SqlFunction)}
- * provides a way to materialize a join query.
  */
 package be.bendem.sqlstreams;

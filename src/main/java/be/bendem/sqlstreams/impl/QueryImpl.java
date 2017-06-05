@@ -2,7 +2,6 @@ package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.Query;
 import be.bendem.sqlstreams.util.SqlFunction;
-import be.bendem.sqlstreams.util.Tuple2;
 import be.bendem.sqlstreams.util.Wrap;
 
 import java.sql.Connection;
@@ -19,11 +18,6 @@ class QueryImpl extends ParameterProviderImpl<Query, PreparedStatement> implemen
         super(statement);
         this.connection = connection;
         this.closeConnection = closeConnection;
-    }
-
-    @Override
-    public <Left, Right> Stream<Tuple2<Left, Right>> mapJoining(SqlFunction<ResultSet, Tuple2<Left, Right>> mapping) {
-        return map(mapping);
     }
 
     @Override
