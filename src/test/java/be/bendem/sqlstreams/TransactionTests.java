@@ -33,4 +33,10 @@ public class TransactionTests extends BaseTests {
         }
     }
 
+    @Test
+    public void emptyTransactionWithIsolationLevel() {
+        try (Transaction transaction = sql.transaction(Transaction.IsolationLevel.SERIALIZABLE)) {
+        }
+    }
+
 }
