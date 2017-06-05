@@ -11,8 +11,7 @@ import java.util.logging.Logger;
  * A stupid {@link DataSource} implementation that throws {@link UnsupportedOperationException} for every method except
  * {@link #getConnection()} and {@link #getConnection(String, String)}.
  *
- * This {@code DataSource} is used by {@link be.bendem.sqlstreams.Sql#connect(Connection)} and {@link
- * be.bendem.sqlstreams.Sql#connect(SqlSupplier)}.
+ * This {@code DataSource} is used by {@link be.bendem.sqlstreams.Sql#connect(Connection)}.
  */
 abstract class DummyDataSource implements DataSource {
 

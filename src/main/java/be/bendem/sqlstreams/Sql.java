@@ -3,8 +3,6 @@ package be.bendem.sqlstreams;
 import be.bendem.sqlstreams.impl.SqlImpl;
 import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.util.SqlFunction;
-import be.bendem.sqlstreams.util.SqlSupplier;
-import be.bendem.sqlstreams.util.SuppliedConnectionsDataSource;
 
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
@@ -29,18 +27,6 @@ public interface Sql extends AutoCloseable {
      */
     static Sql connect(Connection connection) {
         return connect(new SingleConnectionDataSource(connection));
-    }
-
-    /**
-     * Constructs a {@link Sql} instance retrieving new {@link Connection}s
-     * from the provided {@link SqlSupplier Supplier} as needed.
-     *
-     * @param connectionSupplier an object supplying connections
-     * @return the newly created {@code Sql} instance
-     * @see #connect(DataSource)
-     */
-    static Sql connect(SqlSupplier<Connection> connectionSupplier) {
-        return connect(new SuppliedConnectionsDataSource(connectionSupplier));
     }
 
     /**
