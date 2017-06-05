@@ -64,7 +64,9 @@ public interface Sql extends AutoCloseable {
     /**
      * Opens a new transaction bound to a single connection.
      *
+     * @param isolationLevel the isolation level of the underlying transaction
      * @return the new transaction
+     * @see Connection#setTransactionIsolation(int)
      */
     Transaction transaction(Transaction.IsolationLevel isolationLevel);
 
