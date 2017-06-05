@@ -1,6 +1,5 @@
 package be.bendem.sqlstreams;
 
-import be.bendem.sqlstreams.impl.SqlBindings;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +16,7 @@ public class EnumTests extends BaseTests {
         try (Update update = sql.update(INSERT_INTO_TEST).with(SomeEnum.VALUE_2)) {
             Assert.assertEquals(1, update.count());
         }
-        Optional<SomeEnum> inserted = sql.first("select b from test", rs -> SqlBindings.map(rs, 1, SomeEnum.class));
+        Optional<SomeEnum> inserted = sql.first("select b from test", rs -> SomeEnum.values()[rs.getInt(1)]);
 
         Assert.assertTrue(inserted.isPresent());
         Assert.assertEquals(SomeEnum.VALUE_2, inserted.get());
