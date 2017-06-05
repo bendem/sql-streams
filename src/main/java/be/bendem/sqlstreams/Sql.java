@@ -143,17 +143,18 @@ public interface Sql extends AutoCloseable {
     Execute<CallableStatement> call(String sql);
 
     /**
-     * Shortcut for {@link #query(String) query(sql).first(mapping)}.
+     * Shortcut for {@link #query(String) query(sql).with(parameters).first(mapping)}.
      *
      * @param sql the sql query
      * @param mapping a function to map each row to an object
+     * @param parameters parameters to apply in order to the provided query
      * @param <R> the type of the elements of the returned stream
      * @return a stream of elements mapped from the result set
      * @see #query(String)
      * @see Query#first(SqlFunction)
      */
-    default <R> Optional<R> first(String sql, SqlFunction<ResultSet, R> mapping) {
-        try (Query query = query(sql)) {
+    default <R> Optional<R> first(String sql, SqlFunction<ResultSet, R> mapping, Object... parameters) {
+        try (Query query = query(sql).with(parameters)) {
             return query.first(mapping);
         }
     }
