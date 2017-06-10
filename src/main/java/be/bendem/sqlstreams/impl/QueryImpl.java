@@ -14,8 +14,8 @@ class QueryImpl extends ParameterProviderImpl<Query, PreparedStatement> implemen
     private final Connection connection;
     private final boolean closeConnection;
 
-    QueryImpl(Connection connection, PreparedStatement statement, boolean closeConnection) {
-        super(statement);
+    QueryImpl(SqlImpl sql, Connection connection, PreparedStatement statement, boolean closeConnection) {
+        super(statement, sql.bindings);
         this.connection = connection;
         this.closeConnection = closeConnection;
     }

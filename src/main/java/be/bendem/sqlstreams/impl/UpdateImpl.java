@@ -11,8 +11,8 @@ class UpdateImpl extends ParameterProviderImpl<Update, PreparedStatement> implem
     private final Connection connection;
     private final boolean closeConnection;
 
-    UpdateImpl(Connection connection, PreparedStatement statement, boolean closeConnection) {
-        super(statement);
+    UpdateImpl(SqlImpl sql, Connection connection, PreparedStatement statement, boolean closeConnection) {
+        super(statement, sql.bindings);
         this.connection = connection;
         this.closeConnection = closeConnection;
     }

@@ -40,6 +40,8 @@ public interface Sql extends AutoCloseable {
         return new SqlImpl(dataSource);
     }
 
+    <T> Sql registerCustomBinding(Class<T> clazz, PreparedStatementBinderByIndex<T> preparedStatementBinderByIndex);
+
     /**
      * Opens a new transaction bound to a single connection.
      *

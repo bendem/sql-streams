@@ -16,13 +16,16 @@ import java.util.stream.StreamSupport;
 public class SqlImpl implements Sql {
 
     private final DataSource dataSource;
+    final SqlBindings bindings;
 
-    SqlImpl() {
-        dataSource = null;
+    SqlImpl(SqlBindings bindings) {
+        this.dataSource = null;
+        this.bindings = bindings;
     }
 
     public SqlImpl(DataSource dataSource) {
         this.dataSource = Objects.requireNonNull(dataSource);
+        this.bindings = new SqlBindings();
     }
 
     protected Connection getConnection() {
@@ -34,19 +37,27 @@ public class SqlImpl implements Sql {
     }
 
     @Override
+    public <T> SqlImpl registerCustomBinding(Class<T> clazz,
+                                             PreparedStatementBinderByIndex<T> preparedStatementBinderByIndex) {
+        bindings.addMapping(clazz, null, null, preparedStatementBinderByIndex);
+        return this;
+    }
+
+    @Override
     public Transaction transaction() {
-        return new TransactionImpl(getConnection());
+        return new TransactionImpl(this);
     }
 
     @Override
     public Transaction transaction(Transaction.IsolationLevel isolationLevel) {
-        return new TransactionImpl(getConnection(), isolationLevel.isolationLevel);
+        return new TransactionImpl(this, isolationLevel.isolationLevel);
     }
 
     @Override
     public Query query(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return new QueryImpl(
+            this,
             connection,
             Wrap.get(() -> preparer.apply(connection)),
             closeConnectionAfterAction());
@@ -56,6 +67,7 @@ public class SqlImpl implements Sql {
     public Update update(SqlFunction<Connection, PreparedStatement> preparer) {
         Connection connection = getConnection();
         return  new UpdateImpl(
+            this,
             connection,
             Wrap.get(() -> preparer.apply(connection)),
             closeConnectionAfterAction());
@@ -65,6 +77,7 @@ public class SqlImpl implements Sql {
     public BatchUpdate batchUpdate(String sql) {
         Connection connection = getConnection();
         return new BatchUpdateImpl(
+            this,
             connection,
             Wrap.get(() -> connection.prepareStatement(sql)),
             closeConnectionAfterAction());
@@ -74,6 +87,7 @@ public class SqlImpl implements Sql {
     public UpdateReturning updateReturning(String sql) {
         Connection connection = getConnection();
         return new UpdateReturningImpl(
+            this,
             connection,
             Wrap.get(() -> connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)),
             closeConnectionAfterAction());
@@ -83,6 +97,7 @@ public class SqlImpl implements Sql {
     public Execute<PreparedStatement> execute(String sql) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
+            this,
             connection,
             Wrap.get(() -> connection.prepareStatement(sql)),
             closeConnectionAfterAction());
@@ -92,6 +107,7 @@ public class SqlImpl implements Sql {
     public Execute<CallableStatement> call(String sql) {
         Connection connection = getConnection();
         return new ExecuteImpl<>(
+            this,
             connection,
             Wrap.get(() -> connection.prepareCall(sql)),
             closeConnectionAfterAction());
@@ -126,5 +142,4 @@ public class SqlImpl implements Sql {
             }
         }
     }
-
 }

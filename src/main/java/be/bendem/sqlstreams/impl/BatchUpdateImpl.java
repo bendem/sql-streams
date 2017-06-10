@@ -13,8 +13,8 @@ class BatchUpdateImpl extends ParameterProviderImpl<BatchUpdate, PreparedStateme
     private final Connection connection;
     private final boolean closeConnection;
 
-    BatchUpdateImpl(Connection connection, PreparedStatement statement, boolean closeConnection) {
-        super(statement);
+    BatchUpdateImpl(SqlImpl sql, Connection connection, PreparedStatement statement, boolean closeConnection) {
+        super(statement, sql.bindings);
         this.connection = connection;
         this.closeConnection = closeConnection;
     }

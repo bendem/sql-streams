@@ -15,8 +15,8 @@ public class UpdateReturningImpl extends ParameterProviderImpl<UpdateReturning, 
     private final Connection connection;
     private final boolean closeConnection;
 
-    UpdateReturningImpl(Connection connection, PreparedStatement statement, boolean closeConnection) {
-        super(statement);
+    UpdateReturningImpl(SqlImpl sql, Connection connection, PreparedStatement statement, boolean closeConnection) {
+        super(statement, sql.bindings);
         this.connection = connection;
         this.closeConnection = closeConnection;
     }

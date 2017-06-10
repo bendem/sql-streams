@@ -17,9 +17,11 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
         implements ParameterProvider<Provider, Statement> {
 
     protected final Statement statement;
+    private final SqlBindings bindings;
 
-    ParameterProviderImpl(Statement statement) {
+    ParameterProviderImpl(Statement statement, SqlBindings bindings) {
         this.statement = statement;
+        this.bindings = bindings;
     }
 
     @Override
@@ -35,12 +37,12 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
 
     @Override
     public Provider with(Object... params) {
-        return prepare(statement -> SqlBindings.map(statement, params, 0));
+        return prepare(statement -> bindings.bind(statement, params, 0));
     }
 
     @Override
     public Provider set(int index, Object x) {
-        return prepare(statement -> SqlBindings.map(statement, index, Objects.requireNonNull(x)));
+        return prepare(statement -> bindings.bind(statement, index, Objects.requireNonNull(x)));
     }
 
     @Override

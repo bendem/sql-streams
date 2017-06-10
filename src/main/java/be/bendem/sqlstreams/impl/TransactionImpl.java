@@ -9,13 +9,15 @@ class TransactionImpl extends SqlImpl implements Transaction {
 
     private final Connection connection;
 
-    TransactionImpl(Connection connection) {
-        this.connection = connection;
+    TransactionImpl(SqlImpl sql) {
+        super(sql.bindings);
+        this.connection = sql.getConnection();
         Wrap.execute(() -> connection.setAutoCommit(false));
     }
 
-    TransactionImpl(Connection connection, int isolationLevel) {
-        this.connection = connection;
+    TransactionImpl(SqlImpl sql, int isolationLevel) {
+        super(sql.bindings);
+        this.connection = sql.getConnection();
         Wrap.execute(() -> {
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(isolationLevel);
