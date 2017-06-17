@@ -13,9 +13,9 @@ public class BatchTests extends BaseTests {
     public void testCount() {
         try (BatchUpdate batch = sql.batchUpdate(INSERT_INTO_TEST)) {
             int count = batch
-                .with(2).endBatch()
-                .with(3).endBatch()
-                .with(4).endBatch()
+                .with(2).next()
+                .with(3).next()
+                .with(4).next()
                 .count();
 
             Assert.assertEquals(3, count);
@@ -30,9 +30,9 @@ public class BatchTests extends BaseTests {
     public void testCounts() {
         try (BatchUpdate batch = sql.batchUpdate(INSERT_INTO_TEST)) {
             int[] counts = batch
-                .with(2).endBatch()
-                .with(3).endBatch()
-                .with(4).endBatch()
+                .with(2).next()
+                .with(3).next()
+                .with(4).next()
                 .counts();
 
             Assert.assertArrayEquals(new int[]{1, 1, 1}, counts);
