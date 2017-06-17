@@ -50,6 +50,12 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
                     Exception exception;
                     if (cause instanceof SQLException) {
                         exception = new UncheckedSqlException((SQLException) cause);
+                    } else if (cause instanceof RuntimeException) {
+                        cause.addSuppressed(e);
+                        throw (RuntimeException) cause;
+                    } else if (cause instanceof Error) {
+                        cause.addSuppressed(e);
+                        throw (Error) cause;
                     } else {
                         exception = new RuntimeException(cause);
                     }
