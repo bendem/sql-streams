@@ -43,5 +43,4 @@ public final class Wrap {
             throw new UncheckedSqlException(e);
         }
     }
-
 }

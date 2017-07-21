@@ -14,5 +14,4 @@ public interface SqlAction {
      * @throws SQLException generally rethrown as {@link be.bendem.sqlstreams.UncheckedSqlException}
      */
     void execute() throws SQLException;
-
 }

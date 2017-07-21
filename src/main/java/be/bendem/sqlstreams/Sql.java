@@ -180,5 +180,4 @@ public interface Sql extends Closeable {
      * Closes the underlying {@link DataSource}.
      */
     void close();
-
 }

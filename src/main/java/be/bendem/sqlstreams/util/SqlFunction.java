@@ -19,5 +19,4 @@ public interface SqlFunction<T, R> {
      * @throws SQLException generally rethrown as {@link be.bendem.sqlstreams.UncheckedSqlException}
      */
     R apply(T t) throws SQLException;
-
 }

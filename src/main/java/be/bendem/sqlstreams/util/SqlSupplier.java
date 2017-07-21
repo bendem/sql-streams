@@ -17,5 +17,4 @@ public interface SqlSupplier<T> {
      * @throws SQLException generally rethrown as {@link be.bendem.sqlstreams.UncheckedSqlException}
      */
     T get() throws SQLException;
-
 }

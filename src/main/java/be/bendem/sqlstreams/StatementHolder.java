@@ -38,5 +38,4 @@ public interface StatementHolder<Statement extends PreparedStatement> extends Cl
     default void close() {
         Wrap.execute(getStatement()::close);
     }
-
 }

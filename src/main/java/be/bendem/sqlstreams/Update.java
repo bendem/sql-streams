@@ -19,5 +19,4 @@ public interface Update extends ParameterProvider<Update, PreparedStatement>  {
      * @see PreparedStatement#executeLargeUpdate()
      */
     long largeCount();
-
 }

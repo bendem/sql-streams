@@ -289,5 +289,4 @@ class ParameterProviderImpl<Provider extends ParameterProvider<Provider, Stateme
     public Provider setURL(int index, URL x) {
         return prepare(statement -> statement.setURL(index, x));
     }
-
 }

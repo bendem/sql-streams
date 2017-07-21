@@ -61,5 +61,4 @@ public interface BatchUpdate extends ParameterProvider<BatchUpdate, PreparedStat
      * @see PreparedStatement#executeLargeBatch()
      */
     long largeCount();
-
 }

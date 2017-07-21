@@ -15,5 +15,4 @@ public interface Execute<Statement extends PreparedStatement>
      * @see StatementHolder#getStatement()
      */
     boolean execute();
-
 }

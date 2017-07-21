@@ -38,5 +38,4 @@ public interface UpdateReturning extends ParameterProvider<UpdateReturning, Prep
      * @see PreparedStatement#getGeneratedKeys()
      */
     <T> Stream<T> generated(SqlFunction<ResultSet, T> mapping);
-
 }

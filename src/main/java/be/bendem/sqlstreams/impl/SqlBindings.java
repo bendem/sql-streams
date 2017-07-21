@@ -96,7 +96,6 @@ public final class SqlBindings {
         toSqlBinding.bind(stmt, index, value);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T retrieve(ResultSet resultSet, int index, Class<T> clazz) throws SQLException {
         ResultSetRetrieverByIndex<T> fromSqlBinding;
 

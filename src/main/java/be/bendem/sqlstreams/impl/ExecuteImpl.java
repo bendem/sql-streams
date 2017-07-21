@@ -30,5 +30,4 @@ class ExecuteImpl<Statement extends PreparedStatement>
             Wrap.execute(connection::close);
         }
     }
-
 }

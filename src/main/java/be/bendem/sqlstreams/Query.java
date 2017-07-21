@@ -32,5 +32,4 @@ public interface Query extends ParameterProvider<Query, PreparedStatement> {
      * @return a lazily populated stream of each element returned by the query
      */
     <R> Stream<R> map(SqlFunction<ResultSet, R> mapping);
-
 }

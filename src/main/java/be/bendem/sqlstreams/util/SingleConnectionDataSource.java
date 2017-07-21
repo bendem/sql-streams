@@ -85,5 +85,4 @@ public class SingleConnectionDataSource extends DummyDataSource implements Close
         Wrap.execute(() -> connection.setAutoCommit(true));
         inUse.set(false);
     }
-
 }

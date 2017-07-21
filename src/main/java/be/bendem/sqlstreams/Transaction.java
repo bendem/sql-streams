@@ -57,5 +57,4 @@ public interface Transaction extends Sql {
      */
     @Override
     void close();
-
 }

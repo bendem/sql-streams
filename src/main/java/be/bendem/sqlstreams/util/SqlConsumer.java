@@ -18,5 +18,4 @@ public interface SqlConsumer<T> {
      * @throws SQLException generally rethrown as {@link be.bendem.sqlstreams.UncheckedSqlException}
      */
     void accept(T t) throws SQLException;
-
 }

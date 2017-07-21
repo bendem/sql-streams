@@ -569,5 +569,4 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
      * @see PreparedStatement#setURL(int, URL)
      */
     Provider setURL(int index, URL x);
-
 }
