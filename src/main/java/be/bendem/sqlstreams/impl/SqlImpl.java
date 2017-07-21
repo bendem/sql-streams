@@ -1,6 +1,7 @@
 package be.bendem.sqlstreams.impl;
 
 import be.bendem.sqlstreams.*;
+import be.bendem.sqlstreams.util.SqlBiFunction;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Wrap;
 
@@ -50,62 +51,33 @@ public class SqlImpl implements Sql {
 
     @Override
     public Query query(SqlFunction<Connection, PreparedStatement> preparer) {
-        Connection connection = getConnection();
-        return new QueryImpl(
-            this,
-            connection,
-            Wrap.get(() -> preparer.apply(connection)),
-            closeConnectionAfterAction());
+        return prepare(QueryImpl::new, preparer);
     }
 
     @Override
     public Update update(SqlFunction<Connection, PreparedStatement> preparer) {
-        Connection connection = getConnection();
-        return  new UpdateImpl(
-            this,
-            connection,
-            Wrap.get(() -> preparer.apply(connection)),
-            closeConnectionAfterAction());
+        return prepare(UpdateImpl::new, preparer);
     }
 
     @Override
     public BatchUpdate batchUpdate(String sql) {
-        Connection connection = getConnection();
-        return new BatchUpdateImpl(
-            this,
-            connection,
-            Wrap.get(() -> connection.prepareStatement(sql)),
-            closeConnectionAfterAction());
+        return prepare(sql, BatchUpdateImpl::new, Connection::prepareStatement);
     }
 
     @Override
     public UpdateReturning updateReturning(String sql) {
-        Connection connection = getConnection();
-        return new UpdateReturningImpl(
-            this,
-            connection,
-            Wrap.get(() -> connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)),
-            closeConnectionAfterAction());
+        return prepare(sql, UpdateReturningImpl::new,
+            (connection, s) -> connection.prepareStatement(s, Statement.RETURN_GENERATED_KEYS));
     }
 
     @Override
     public Execute<PreparedStatement> execute(String sql) {
-        Connection connection = getConnection();
-        return new ExecuteImpl<>(
-            this,
-            connection,
-            Wrap.get(() -> connection.prepareStatement(sql)),
-            closeConnectionAfterAction());
+        return prepare(sql, ExecuteImpl::new, Connection::prepareStatement);
     }
 
     @Override
     public Execute<CallableStatement> call(String sql) {
-        Connection connection = getConnection();
-        return new ExecuteImpl<>(
-            this,
-            connection,
-            Wrap.get(() -> connection.prepareCall(sql)),
-            closeConnectionAfterAction());
+        return prepare(sql, ExecuteImpl::new, Connection::prepareCall);
     }
 
     @Override
@@ -119,5 +91,31 @@ public class SqlImpl implements Sql {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @FunctionalInterface
+    private interface Creator<T, S extends Statement> {
+        T create(SqlImpl impl, Connection connection, S statement, boolean closeConnectionAfterAction);
+    }
+
+    private <T, S extends Statement> T prepare(Creator<T, S> creator,
+                                               SqlFunction<Connection, S> statementCreator) {
+        Connection connection = getConnection();
+        return creator.create(
+            this,
+            connection,
+            Wrap.get(() -> statementCreator.apply(connection)),
+            closeConnectionAfterAction());
+    }
+
+    private <T, S extends Statement> T prepare(String sql,
+                                               Creator<T, S> creator,
+                                               SqlBiFunction<Connection, String, S> statementCreator) {
+        Connection connection = getConnection();
+        return creator.create(
+            this,
+            connection,
+            Wrap.get(() -> statementCreator.apply(connection, sql)),
+            closeConnectionAfterAction());
     }
 }
