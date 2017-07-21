@@ -7,11 +7,6 @@ import be.bendem.sqlstreams.util.Wrap;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class SqlImpl implements Sql {
 
@@ -111,23 +106,6 @@ public class SqlImpl implements Sql {
             connection,
             Wrap.get(() -> connection.prepareCall(sql)),
             closeConnectionAfterAction());
-    }
-
-    static <T> Stream<T> streamFromResultSet(SqlFunction<ResultSet, T> mapping, ResultSet resultSet) {
-        return StreamSupport
-            .stream(new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
-                @Override
-                public boolean tryAdvance(Consumer<? super T> consumer) {
-                    return Wrap.get(() -> {
-                        boolean hasNext;
-                        if (hasNext = resultSet.next()) {
-                            consumer.accept(mapping.apply(resultSet));
-                        }
-                        return hasNext;
-                    });
-                }
-            }, false)
-            .onClose(() -> Wrap.execute(resultSet::close));
     }
 
     @Override

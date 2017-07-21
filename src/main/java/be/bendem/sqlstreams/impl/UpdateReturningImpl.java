@@ -33,7 +33,7 @@ public class UpdateReturningImpl extends ParameterProviderImpl<UpdateReturning, 
 
     @Override
     public <T> Stream<T> generated(SqlFunction<ResultSet, T> mapping) {
-        return Wrap.get(() -> SqlImpl.streamFromResultSet(mapping, statement.getGeneratedKeys()))
+        return ResultSetSpliterator.stream(mapping, Wrap.get(statement::getGeneratedKeys))
             .onClose(this::close);
     }
 

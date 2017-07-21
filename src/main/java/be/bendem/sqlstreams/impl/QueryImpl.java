@@ -22,7 +22,7 @@ class QueryImpl extends ParameterProviderImpl<Query, PreparedStatement> implemen
 
     @Override
     public <R> Stream<R> map(SqlFunction<ResultSet, R> mapping) {
-        return SqlImpl.streamFromResultSet(mapping, Wrap.get(statement::executeQuery))
+        return ResultSetSpliterator.stream(mapping, Wrap.get(statement::executeQuery))
             .onClose(this::close);
     }
 
