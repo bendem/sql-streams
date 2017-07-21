@@ -8,10 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GeneratedValuesTests extends BaseTests {
-
     @Test
     public void testRetrieveGeneratedKeys() throws Exception {
-        try (UpdateReturning update = sql.updateReturning("insert into test (b) values (1)")) {
+        try (UpdateReturning update = sql.updateReturning("insert into test (b) values (?)").with(1)) {
             Assert.assertEquals(1, update.count());
 
             try (Stream<Integer> generated = update.generated(rs -> rs.getInt(1))) {
