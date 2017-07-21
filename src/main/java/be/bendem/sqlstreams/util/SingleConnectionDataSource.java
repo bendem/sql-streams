@@ -15,8 +15,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * closed, calling {@link #getConnection()} will throw an {@link IllegalStateException}.
  *
  * To actually close the connection, call {@link #close()} on this DataSource.
+ *
+ * Instances of this class are thread-safe, but the connections returned when calling {@link #getConnection()} aren't.
  */
-public class SingleConnectionDataSource extends DummyDataSource implements AutoCloseable {
+public class SingleConnectionDataSource extends DummyDataSource implements Closeable {
 
     private final AtomicBoolean inUse;
     private final Connection connection;
@@ -75,8 +77,8 @@ public class SingleConnectionDataSource extends DummyDataSource implements AutoC
     }
 
     @Override
-    public void close() throws Exception {
-        connection.close();
+    public void close() {
+        Wrap.execute(connection::close);
     }
 
     private void releaseConnection() {

@@ -1,6 +1,7 @@
 package be.bendem.sqlstreams;
 
 import be.bendem.sqlstreams.impl.SqlImpl;
+import be.bendem.sqlstreams.util.Closeable;
 import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.util.SqlFunction;
 
@@ -16,7 +17,7 @@ import java.util.Optional;
  * methods to set it up from a {@link Connection} or a {@link DataSource}
  * as well as all methods to query it.
  */
-public interface Sql extends AutoCloseable {
+public interface Sql extends Closeable {
 
     /**
      * Constructs a {@link Sql} instance holding a single connection.

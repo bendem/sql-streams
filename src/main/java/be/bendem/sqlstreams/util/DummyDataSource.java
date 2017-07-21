@@ -15,6 +15,9 @@ import java.util.logging.Logger;
  */
 abstract class DummyDataSource implements DataSource {
 
+    /**
+     * Parameters passed to this method are ignored, this is equivalent to calling {@link #getConnection()} directly.
+     */
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return getConnection();
