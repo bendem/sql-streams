@@ -5,9 +5,10 @@ import be.bendem.sqlstreams.util.SqlBiFunction;
 import be.bendem.sqlstreams.util.SqlFunction;
 import be.bendem.sqlstreams.util.Wrap;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Objects;
+
+import javax.sql.DataSource;
 
 public class SqlImpl implements Sql {
 
@@ -62,12 +63,6 @@ public class SqlImpl implements Sql {
     @Override
     public BatchUpdate batchUpdate(String sql) {
         return prepare(sql, BatchUpdateImpl::new, Connection::prepareStatement);
-    }
-
-    @Override
-    public UpdateReturning updateReturning(String sql) {
-        return prepare(sql, UpdateReturningImpl::new,
-            (connection, s) -> connection.prepareStatement(s, Statement.RETURN_GENERATED_KEYS));
     }
 
     @Override

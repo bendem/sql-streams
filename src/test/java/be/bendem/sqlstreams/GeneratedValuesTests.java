@@ -5,20 +5,18 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static org.junit.Assume.assumeTrue;
 
 public class GeneratedValuesTests extends BaseTests {
     @Test
-    public void testRetrieveGeneratedKeys() throws Exception {
-        try (UpdateReturning update = sql.updateReturning("insert into test (b) values (?)").with(1)) {
-            Assert.assertEquals(1, update.count());
+    public void testInsertReturning() throws Exception {
+        assumeTrue(database == Database.POSTGRES);
 
-            try (Stream<Integer> generated = update.generated(rs -> rs.getInt(1))) {
-                List<Integer> collected = generated.collect(Collectors.toList());
-
-                Assert.assertEquals(1, collected.size());
-                Assert.assertEquals(1, (int) collected.get(0));
-            }
+        try (Query query = sql.query("insert into test (b) values (?) returning b").with(1)) {
+            List<Integer> update = query.map(rs -> rs.getInt(1)).collect(Collectors.toList());
+            Assert.assertEquals(1, update.size());
+            Assert.assertEquals(1, (int) update.get(0));
         }
     }
 }

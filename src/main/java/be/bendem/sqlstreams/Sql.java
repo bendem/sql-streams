@@ -5,12 +5,13 @@ import be.bendem.sqlstreams.util.Closeable;
 import be.bendem.sqlstreams.util.SingleConnectionDataSource;
 import be.bendem.sqlstreams.util.SqlFunction;
 
-import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Optional;
+
+import javax.sql.DataSource;
 
 /**
  * This class is the main entry point from this library. It provides static
@@ -115,16 +116,6 @@ public interface Sql extends Closeable {
      *         of affected rows
      */
     BatchUpdate batchUpdate(String sql);
-
-    /**
-     * Prepares a DML statement using {@link Connection#prepareStatement(String,
-     * int) prepareStatement(String, Statement.RETURN_GENERATED_KEYS)}.
-     *
-     * @param sql the sql query
-     * @return an object to parametrize the statement and retrieve counts
-     *         of affected rows
-     */
-    UpdateReturning updateReturning(String sql);
 
     /**
      * Prepares a query.
