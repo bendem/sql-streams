@@ -46,20 +46,20 @@ If you are using spring-boot, checkout [sql-streams-spring]!
 
 ## Development
 
-You will need [gradle] to compile and install this library
+You will need [maven] to compile and install this library
 ```sh
-gradle build install
+mvn install
 ```
 
 In addition to the SQLite and H2 tests, you can run the tests with PostgreSQL by providing a jdbc
 connection url:
 ```sh
-PGURL=jdbc:postgresql:test gradle test
+PGURL=jdbc:postgresql:test mvn test
 # or with user and password if not using peer authentication
-PGURL=jdbc:postgresql://localhost/test PGUSER=test PGPASSWORD=test gradle test
+PGURL=jdbc:postgresql://localhost/test PGUSER=test PGPASSWORD=test mvn test
 ```
 
 [ORM]: http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html
 [JDBC API]: https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/
-[gradle]: https://gradle.org/install/
+[maven]: https://maven.apache.org/
 [sql-streams-spring]: https://github.com/bendem/sql-streams-spring
