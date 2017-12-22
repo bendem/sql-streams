@@ -42,6 +42,8 @@ try (Sql sql = Sql.connect(datasource)) {
 }
 ```
 
+If you are using spring-boot, checkout [sql-streams-spring]!
+
 ## Development
 
 You will need [gradle] to compile and install this library
@@ -60,3 +62,4 @@ PGURL=jdbc:postgresql://localhost/test PGUSER=test PGPASSWORD=test gradle test
 [ORM]: http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html
 [JDBC API]: https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/
 [gradle]: https://gradle.org/install/
+[sql-streams-spring]: https://github.com/bendem/sql-streams-spring
