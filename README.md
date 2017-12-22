@@ -1,54 +1,25 @@
-## Sql streams
+## sql-streams
 
 [![Codeship Status for bendem/sql-streams](https://codeship.com/projects/55cad800-f141-0133-11e7-5a649d8f4ff2/status?branch=master)](https://codeship.com/projects/149357)
 
-Ever wondered why it was so hard to translate that SQL query into something an [ORM] can eat?
-Why every method of the [JDBC API] throws a `SQLException`?
-Why getting data in and out of the JDBC API was so verbose?
+`sql-streams` is a tool for the people that don't need or want to use an ORM but
+don't want to deal with the [JDBC API] either. It provides a light abstraction
+over JDBC without ever making it inaccessible.
 
-What if you could query and map to a class easily?
+## Features
 
-```java
-try (Stream<User> users = sql.query("select * from users where added < current_date", rs -> rs.getString("username"))) {
-    // Use your username stream \o/
-}
-```
-
-What if a transaction could be written like this:
-
-```java
-try (Transaction transaction = sql.transaction()) {
-    // Use your transaction
-    transaction.commit();
-} catch (SomeException e) {
-    // Handle exception
-} // rollback
-```
-
-What if you could insert a bunch of data at once using a fluent API?
-
-```java
-try (PreparedBatchUpdate batch = sql.prepareBatchUpdate("insert into users (name, status) values(?, ?)")) {
-    int count = batch
-        .with("bob", "admin").newBatch()
-        .with("paul", "user").newBatch()
-        .with("georges", "user").newBatch()
-        .count();
-
-    Assert.assertEquals(3, count);
-}
-```
++ Simple setup if you already have a `Connection` or a `DataSource` available
++ Fluent API
++ `ResultSet` is abstracted to a `Stream`
++ Classes that can be closed are `AutoCloseable`
++ `SQLException` are wrapped into `UncheckedSqlException`
++ Doesn't try to hide the JDBC primitives, they are never further than a method
+call away
++ Automatic type deduction with the `with` method
 
 ## Getting started
 
-Binaries for this library are not hosted anywhere yet. In the meantime you can compile it yourself
-```sh
-git clone https://github.com/bendem/sql-streams
-cd sql-streams
-gradle build install
-```
-
-You can then add the dependency to your project
+To get started, all you need to do is to add `sql-streams` to your dependencies:
 ```xml
 <dependency>
     <groupId>be.bendem</groupId>
@@ -60,6 +31,17 @@ You can then add the dependency to your project
 compile 'be.bendem:sql-streams:[current version]'
 ```
 
+Once it is done, you can create an instance of `Sql` using one of the two
+`connect` methods.
+
+```java
+try (Sql sql = Sql.connect(datasource)) {
+    Optional<String> userEmail = sql
+        .first("select email from users where user_id = ?")
+        .with(userId);
+}
+```
+
 ## Development
 
 You will need [gradle] to compile and install this library
@@ -67,20 +49,14 @@ You will need [gradle] to compile and install this library
 gradle build install
 ```
 
-In addition to the SQLite and H2 tests, you can run the PostgreSQL tests using
+In addition to the SQLite and H2 tests, you can run the tests with PostgreSQL by providing a jdbc
+connection url:
 ```sh
-PGUSER=test PGPASSWORD=test gradle test
-# or
-PGFORCE=true gradle test
+PGURL=jdbc:postgresql:test gradle test
+# or with user and password if not using peer authentication
+PGURL=jdbc:postgresql://localhost/test PGUSER=test PGPASSWORD=test gradle test
 ```
-
-Environement variables checked for postgres tests:
-+ `PGFORCE`: Forces the postgres tests to be executed
-+ `PGUSER`: Connection user
-+ `PGPASSWORD`: Connection password
-+ `PGPORT`: Port of the database (default `5436`)
-+ `PGDATABASE`: Name of the database (default `test`)
 
 [ORM]: http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html
 [JDBC API]: https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/
-[gradle]: https://gradle.org/gradle-download/
+[gradle]: https://gradle.org/install/

@@ -29,8 +29,7 @@ public abstract class BaseTests {
         data.add(new Object[] { Database.SQLITE });
         data.add(new Object[] { Database.H2 });
 
-        if (System.getenv("PGFORCE") != null
-                || (System.getenv("PGUSER") != null && System.getenv("PGPASSWORD") != null)) {
+        if (System.getenv("PGURL") != null) {
             data.add(new Object[] { Database.POSTGRES });
         }
 
@@ -46,10 +45,8 @@ public abstract class BaseTests {
     public void setup() {
         switch (database) {
         case POSTGRES: {
-            String port = Optional.ofNullable(System.getenv("PGPORT")).orElse("5436");
-            String database = Optional.ofNullable(System.getenv("PGDATABASE")).orElse("test");
             Connection connection = Wrap.get(() -> DriverManager.getConnection(
-                "jdbc:postgresql://localhost:" + port + "/" + database,
+                System.getenv("PGURL"),
                 System.getenv("PGUSER"),
                 System.getenv("PGPASSWORD")));
             sql = Sql.connect(connection);
