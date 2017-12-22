@@ -383,7 +383,7 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
     Provider setNString(int index, String x);
 
     /**
-     * Sets the designated parameter to the given {@link int}.
+     * Sets the designated parameter to the given {@code int}.
      *
      * @param index the index of the parameter to set (starting from 1)
      * @param sqlType the SQL type code defined in {@link Types}
@@ -393,7 +393,7 @@ public interface ParameterProvider<Provider extends ParameterProvider<Provider, 
     Provider setNull(int index, int sqlType);
 
     /**
-     * Sets the designated parameter to the given {@link int}.
+     * Sets the designated parameter to the given {@code int}.
      *
      * @param index the index of the parameter to set (starting from 1)
      * @param sqlType the SQL type code defined in {@link Types}
